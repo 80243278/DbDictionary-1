@@ -1,0 +1,110 @@
+plugins {
+	id 'org.springframework.boot' version '2.2.2.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+	id 'java'
+}
+
+group = 'com.yunhesoft'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+	developmentOnly
+	runtimeClasspath {
+		extendsFrom developmentOnly
+	}
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	//mavenCentral()
+	maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+}
+
+dependencies {
+
+implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	//implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	
+	implementation 'io.springfox:springfox-swagger2:2.9.2'
+	implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+	//implementation 'com.github.xiaoymin:swagger-bootstrap-ui:1.9.3'
+		
+	//数据库连接池
+	implementation 'com.alibaba:druid-spring-boot-starter:1.1.9'
+	implementation 'com.alibaba:druid:1.1.14'
+	//持久层
+	compile 'com.baomidou:mybatis-plus-boot-starter:3.2.0'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	//驱动程序
+	runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+	
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
+
+/////////打包并发布到nexus3服务器
+apply plugin:'maven-publish'
+
+//声明非启动模式的jar包任务
+task routeClientJar(type:Jar) {
+	//打包成jar时，必须设置为true
+	enabled = true
+	//基础名称为项目的名称
+	baseName = project.name
+	//打包的class文件位置
+	from('build/classes/java/main/')
+	//打包哪些class文件
+	include('com/yhsoft/tm4.dbdictionary/entity/po/SysDbConnInfo.class')
+	//include('com/yunhesoft/tm4/mdm/route/entity/vo/SysRouteVo.class')
+	//include('core/common/http/**/*.class')
+	//打包时不包含的class文件
+	//exclude('com/yunhesoft/tm4/core/Tm4CoreApplication.class')
+	//打包class文件放到jar包中的哪个目录下
+	into('')
+}
+publishing {
+	publications {
+		//发布一个jar包
+		//mavenBootJar(MavenPublication) {
+		//    //指定group/artifact/version信息，可以不填。默认使用项目group/name/version作为groupId/artifactId/version
+		//    groupId project.group
+		//    artifactId project.name
+		//    version project.version
+		//    //artifact标识，bootJar是一个生成jar的任务
+		//    artifact bootJar
+		//}
+		mavenClientJar(MavenPublication) {
+			//指定group/artifact/version信息，可以不填。默认使用项目group/name/version作为groupId/artifactId/version
+			groupId project.group
+			//artifactId project.name+'-client'
+			//tm4-core是一个纯的供其它项目使用的依赖包，因此，需要打成不包含其它内容的包
+			artifactId project.name + '-route-client'
+			version project.version
+			artifact routeClientJar
+		}
+	}
+	//repositories {
+	//	maven {
+	//		//指定要上传的maven私服仓库
+	//		url = baseUrl+"/tm4-public/"
+	//		//认证用户和密码
+	//		credentials {
+	//			username 'tm4dev'
+	//			password 'YH2019@bzhs!*6'
+	//		}
+	//	}
+	//}
+}
+
