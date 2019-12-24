@@ -25,6 +25,8 @@ public class SysModule {
 	@TableId(type = IdType.ID_WORKER)
 	private String tmuid;
 	@Column(length = 50)
+	private String dbConnId;
+	@Column(length = 50)
 	private String moduleCode;
 	@Column(length = 200)
 	private String moduleName;
