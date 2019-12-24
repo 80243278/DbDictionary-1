@@ -56,7 +56,7 @@ public class ApiDocConfigSwagger2 {
 				// 版本号
 				.version("0.1")
 				// 描述
-				.description("tm4-demo API描述").build();
+				.description("com.yunhesoft.tm4.dbdictionary API描述").build();
 	}
 
 }
