@@ -1,46 +1,39 @@
 package com.yunhesoft.tm4.dbdictionary.entity.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * @author: zhanglw
- * @Date: 2019/12/22 15:22
- * @Description: 数据库字典表信息存储PO
+ * @author zhang.jt
+ * @Description: 数据库表字典表POJO
  */
-@Data
-@Table(name = "sys_dbDictionary_table")
-@TableName("sys_dbDictionary_table")
-public class SysDbDictionaryTable {
+@Getter
+@Setter
+@Entity
+@Table(name = "sys_dict_table")
+@TableName("sys_dict_table")
+public class SysDictTable {
 	@Id
 	@TableId(type = IdType.ID_WORKER)
 	private String tmuid;
 	@Column(length = 50)
-	@TableField
 	private String tableName;
-	@Column(length = 50)
-	@TableField
+	@Column(length = 200)
 	private String tableShowName;
 	@Column(length = 50)
-	@TableField
 	private String moduleCode;
 	@Column(length = 50)
-	@TableField
-	private String dbConnTmuid;
-	@Column
-	@TableField
-	private Integer used;
-	@Column
-	@TableField
+	private String dbConnId;
+	private Boolean used;
 	private Integer sort;
-	@Column(length = 200)
-	@TableField
+	@Column(length = 4000)
 	private String remark;
 }

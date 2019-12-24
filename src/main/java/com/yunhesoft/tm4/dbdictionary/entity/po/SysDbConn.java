@@ -1,49 +1,44 @@
 package com.yunhesoft.tm4.dbdictionary.entity.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * @author: zhanglw
- * @Date: 2019/12/22 15:04
- * @Description: 数据库连接表POLRI
+ * @author zhang.jt
+ * @Description: 数据库连接表POJO
  */
-@Data
-@Table(name = "sys_dbConnInfo")
-@TableName("sys_dbConnInfo")
-public class SysDbConnInfo {
+@Getter
+@Setter
+@Entity
+@Table(name = "sys_db_conn")
+@TableName("sys_db_conn")
+public class SysDbConn {
 	@Id
 	@TableId(type = IdType.ID_WORKER)
+	@Column(length = 50)
 	private String tmuid;
-	@Column(length = 50)
-	@TableField
+	@Column(length = 200)
 	private String dbName;
-	@Column(length = 50)
-	@TableField
+	@Column(length = 200)
 	private String dbShowName;
 	@Column(length = 200)
-	@TableField
 	private String dbUrl;
 	@Column(length = 50)
-	@TableField
-	private String dbConnUserName;
+	private String dbUserName;
 	@Column(length = 50)
-	@TableField
-	private String dbConnPassWord;
+	private String dbPassWord;
 	@Column(length = 200)
-	@TableField
 	private String dbDialect;
-	@Column
-	@TableField
-	private Integer used;
-	@Column(length = 200)
-	@TableField
+	private Boolean used;
 	private Integer sort;
+	@Column(length = 4000)
+	private String remark;
 }

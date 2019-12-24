@@ -1,52 +1,41 @@
 package com.yunhesoft.tm4.dbdictionary.entity.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * @author: zhanglw
- * @Date: 2019/12/22 15:25
- * @Description:
+ * @author zhang.jt
+ * @category 数据库表字段字典表POJO
  */
-@Data
-@Table(name = "sys_dbDictionary_column")
-@TableName("sys_dbDictionary_column")
-public class SysDbDictionaryColumn {
+@Getter
+@Setter
+@Entity
+@Table(name = "sys_dict_column")
+@TableName("sys_dict_column")
+public class SysDictColumn {
 	@Id
 	@TableId(type = IdType.ID_WORKER)
 	private String tmuid;
 	@Column(length = 50)
-	@TableField
 	private String columnName;
-	@Column(length = 50)
-	@TableField
+	@Column(length = 200)
 	private String columnShowName;
 	@Column(length = 50)
-	@TableField
-	private String tableTmuid;
+	private String tableId;
 	@Column(length = 50)
-	@TableField
 	private String dataType;
-	@Column
-	@TableField
-	private Integer notNull;
-	@Column
-	@TableField
-	private Integer primaryKey;
-	@Column
-	@TableField
-	private Integer used;
-	@Column
-	@TableField
+	private Boolean notNull;
+	private Boolean primaryKey;
+	private Boolean used;
 	private Integer sort;
-	@Column(length = 200)
-	@TableField
+	@Column(length = 4000)
 	private String remark;
 }
