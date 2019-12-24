@@ -32,12 +32,12 @@ public class DbDictController {
 	@ApiOperation(value = "添加模块")
 	@ApiImplicitParam(name = "module", value = "模块对象", required = true, paramType = "body", dataType = "SysModuleVo")
 	public ResponseVo addModule(@RequestBody SysModuleVo module) {
-		ResponseVo resp = ResponseVo.ok("执行成功");
+		ResponseVo resp = ResponseVo.ok("添加模块成功");
 		SysModuleDto modDto = new SysModuleDto();
 		BeanUtils.copyProperties(module, modDto);
 		boolean flag = moduleService.addSysModule(modDto);
 		if (flag == false) {
-			resp = ResponseVo.error("执行失败");
+			resp = ResponseVo.error("添加模块失败");
 		}
 		return resp;
 	}
@@ -47,12 +47,12 @@ public class DbDictController {
 	@ApiOperation(value = "修改模块")
 	@ApiImplicitParam(name = "module", value = "模块对象", required = true, paramType = "body", dataType = "SysModuleVo")
 	public ResponseVo updModule(@RequestBody SysModuleVo module) {
-		ResponseVo resp = ResponseVo.ok("执行成功");
+		ResponseVo resp = ResponseVo.ok("修改模块成功");
 		SysModuleDto modDto = new SysModuleDto();
 		BeanUtils.copyProperties(module, modDto);
 		boolean flag = moduleService.updSysModule(modDto);
 		if (flag == false) {
-			resp = ResponseVo.error("执行失败");
+			resp = ResponseVo.error("修改模块失败");
 		}
 		return resp;
 	}
@@ -62,12 +62,12 @@ public class DbDictController {
 	@ApiOperation(value = "删除模块")
 	@ApiImplicitParam(name = "module", value = "模块对象", required = true, paramType = "body", dataType = "SysModuleVo")
 	public ResponseVo delModule(@RequestBody SysModuleVo module) {
-		ResponseVo resp = ResponseVo.ok("执行成功");
+		ResponseVo resp = ResponseVo.ok("删除模块成功");
 		SysModuleDto modDto = new SysModuleDto();
 		BeanUtils.copyProperties(module, modDto);
 		boolean flag = moduleService.delSysModule(modDto);
 		if (flag == false) {
-			resp = ResponseVo.error("执行失败");
+			resp = ResponseVo.error("删除模块失败");
 		}
 		return resp;
 	}

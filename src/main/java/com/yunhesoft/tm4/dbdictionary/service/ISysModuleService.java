@@ -6,34 +6,37 @@ import org.springframework.stereotype.Service;
 
 import com.yunhesoft.tm4.dbdictionary.entity.dto.SysModuleDto;
 
+import io.swagger.annotations.Api;
+
 /**
  * @author zhang.jt
  */
 @Service
+@Api(tags = "用户表接口类")
 public interface ISysModuleService {
 	/**
-	 * @category 通过ID获取模块数据
+	 * 通过ID获取模块数据
 	 * @param tmuid
 	 * @return List<SysModuleDto>
 	 */
 	public List<SysModuleDto> getSysModuleById(String tmuid);
 
 	/**
-	 * @category 添加模块
+	 * 添加模块
 	 * @param modDto
 	 * @return
 	 */
 	public boolean addSysModule(SysModuleDto modDto);
 
 	/**
-	 * @category 修改模块
+	 * 修改模块
 	 * @param modDto
 	 * @return
 	 */
 	public boolean updSysModule(SysModuleDto modDto);
 
 	/**
-	 * @category 删除模块
+	 * 删除模块
 	 * @param modDto
 	 * @return
 	 */

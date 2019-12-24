@@ -22,7 +22,7 @@ import javax.persistence.Table;
 @TableName("sys_db_conn")
 public class SysDbConn {
 	@Id
-	@TableId(type = IdType.ID_WORKER)
+	@TableId(type = IdType.ID_WORKER_STR)
 	@Column(length = 50)
 	private String tmuid;
 	@Column(length = 200)

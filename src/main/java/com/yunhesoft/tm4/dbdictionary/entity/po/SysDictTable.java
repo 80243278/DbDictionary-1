@@ -22,7 +22,7 @@ import javax.persistence.Table;
 @TableName("sys_dict_table")
 public class SysDictTable {
 	@Id
-	@TableId(type = IdType.ID_WORKER)
+	@TableId(type = IdType.ID_WORKER_STR)
 	private String tmuid;
 	@Column(length = 50)
 	private String tableName;

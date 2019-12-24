@@ -13,6 +13,7 @@ import com.yunhesoft.tm4.dbdictionary.entity.dto.SysModuleDto;
 import com.yunhesoft.tm4.dbdictionary.entity.po.SysModule;
 import com.yunhesoft.tm4.dbdictionary.mapper.SysModuleMapper;
 import com.yunhesoft.tm4.dbdictionary.service.ISysModuleService;
+import com.yunhesoft.tm4.dbdictionary.utils.ToolUtils;
 
 /**
  * @author zhang.jt
@@ -58,6 +59,8 @@ public class SysModuleServiceImpl extends ServiceImpl<SysModuleMapper, SysModule
 		}
 		SysModule modNew = new SysModule();
 		BeanUtils.copyProperties(modDto, modNew);
+		String uuid = ToolUtils.getUUID();
+		modNew.setModuleCode(uuid);
 		boolean flag = this.save(modNew);
 		return flag;
 	}
