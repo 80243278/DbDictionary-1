@@ -9,5 +9,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SysModuleVo {
-
+	String tmuid;
+	String moduleCode;
+	String moduleName;
+	String moduleType;
+	Boolean used;
+	Integer sort;
+	String remark;
 }
