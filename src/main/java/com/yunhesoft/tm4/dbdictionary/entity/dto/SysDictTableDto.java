@@ -10,6 +10,7 @@ import lombok.Setter;
 @Setter
 public class SysDictTableDto {
 	private String tmuid;
+	private String moduleId;
 	private String tableName;
 	private String tableShowName;
 	private String moduleCode;

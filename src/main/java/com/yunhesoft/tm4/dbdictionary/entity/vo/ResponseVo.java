@@ -1,5 +1,7 @@
 package com.yunhesoft.tm4.dbdictionary.entity.vo;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,11 +12,13 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@ApiModel(value = "[应答结果] ResponseVo", description = "通用应答结果")
 public class ResponseVo {
+	@ApiModelProperty(value = "200:成功/500:失败")
 	private Integer status;
-
+	@ApiModelProperty(value = "应答提示内容")
 	private String msg;
-
+	@ApiModelProperty(value = "应答体对象")
 	private Object body;
 
 	private ResponseVo() {
