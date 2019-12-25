@@ -103,7 +103,7 @@ public class SysDictColumnServiceImpl extends ServiceImpl<SysDictColumnMapper, S
 		}
 		SysDictColumn modNew = new SysDictColumn();
 		BeanUtils.copyProperties(modDto, modNew);
-		boolean flag = this.save(modNew);
+		boolean flag = this.updateById(modNew);
 		return flag;
 	}
 

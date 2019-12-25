@@ -103,7 +103,7 @@ public class SysDictTableServiceImpl extends ServiceImpl<SysDictTableMapper, Sys
 		}
 		SysDictTable modNew = new SysDictTable();
 		BeanUtils.copyProperties(modDto, modNew);
-		boolean flag = this.save(modNew);
+		boolean flag = this.updateById(modNew);
 		return flag;
 	}
 

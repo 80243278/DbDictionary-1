@@ -105,7 +105,7 @@ public class SysModuleServiceImpl extends ServiceImpl<SysModuleMapper, SysModule
 		}
 		SysModule modNew = new SysModule();
 		BeanUtils.copyProperties(modDto, modNew);
-		boolean flag = this.save(modNew);
+		boolean flag = this.updateById(modNew);
 		return flag;
 	}
 

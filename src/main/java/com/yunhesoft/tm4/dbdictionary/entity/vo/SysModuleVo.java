@@ -9,7 +9,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SysModuleVo {
+	/**主键*/
 	String tmuid;
+	/**数据库连接id*/
 	String dbConnId;
 	String moduleCode;
 	String moduleName;
