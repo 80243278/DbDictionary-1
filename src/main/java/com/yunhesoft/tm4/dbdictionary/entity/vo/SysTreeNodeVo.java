@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@ApiModel(value = "[应答结果] SysTreeNodeVo", description = "树形节点")
+@ApiModel(description = "[应答结果] 树形节点")
 public class SysTreeNodeVo {
 	@ApiModelProperty(value = "节点名称")
 	String label;

@@ -12,7 +12,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@ApiModel(value = "[应答结果] ResponseVo", description = "通用应答结果")
+@ApiModel(description = "[应答结果] 通用应答结果")
 public class ResponseVo {
 	@ApiModelProperty(value = "200:成功/500:失败")
 	private Integer status;

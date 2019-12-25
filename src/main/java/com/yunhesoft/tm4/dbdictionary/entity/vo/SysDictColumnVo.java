@@ -11,7 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@ApiModel(value = "[请求参数] SysDictColumnVo", description = "数据库表字段")
+@ApiModel(description = "[请求参数] 数据库表字段")
 public class SysDictColumnVo {
 	@ApiModelProperty(value = "唯一标识")
 	private String tmuid;

@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@ApiModel(value = "[请求参数] SysModuleVo", description = "模块")
+@ApiModel(description = "[请求参数] 模块")
 public class SysModuleVo {
 	@ApiModelProperty(value = "唯一标识")
 	String tmuid;
