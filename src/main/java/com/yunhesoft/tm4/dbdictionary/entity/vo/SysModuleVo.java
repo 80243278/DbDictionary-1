@@ -10,6 +10,7 @@ import lombok.Setter;
 @Setter
 public class SysModuleVo {
 	String tmuid;
+	String dbConnId;
 	String moduleCode;
 	String moduleName;
 	String moduleType;
