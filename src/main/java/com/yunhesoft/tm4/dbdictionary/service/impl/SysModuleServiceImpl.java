@@ -41,6 +41,7 @@ public class SysModuleServiceImpl extends ServiceImpl<SysModuleMapper, SysModule
 			for (SysModule b : list) {
 				SysModuleDto nb = new SysModuleDto();
 				BeanUtils.copyProperties(b, nb);
+				newList.add(nb);
 			}
 		}
 
@@ -67,6 +68,7 @@ public class SysModuleServiceImpl extends ServiceImpl<SysModuleMapper, SysModule
 			for (SysModule b : list) {
 				SysModuleDto nb = new SysModuleDto();
 				BeanUtils.copyProperties(b, nb);
+				newList.add(nb);
 			}
 		}
 

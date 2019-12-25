@@ -35,6 +35,7 @@ public class SysDbConnServiceImpl extends ServiceImpl<SysDbConnMapper, SysDbConn
 			for (SysDbConn b : list) {
 				SysDbConnDto nb = new SysDbConnDto();
 				BeanUtils.copyProperties(b, nb);
+				dtoList.add(nb);
 			}
 		}
 

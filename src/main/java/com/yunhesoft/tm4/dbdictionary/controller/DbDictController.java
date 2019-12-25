@@ -38,8 +38,11 @@ import io.swagger.annotations.ApiOperation;
 public class DbDictController {
 	@Autowired
 	private ISysDbConnService connService;
+	@Autowired
 	private ISysModuleService moduleService;
+	@Autowired
 	private ISysDictTableService tableService;
+	@Autowired
 	private ISysDictColumnService columnService;
 
 	@ResponseBody
@@ -180,7 +183,7 @@ public class DbDictController {
 	@ResponseBody
 	@RequestMapping(value = "/getTree", method = { RequestMethod.POST })
 	@ApiOperation(value = "获取树形节点")
-	@ApiImplicitParam(name = "node", value = "父节点对象", required = true, paramType = "body", dataType = "SysDictColumnVo")
+	@ApiImplicitParam(name = "node", value = "父节点对象", required = true, paramType = "body", dataType = "SysTreeNodeVo")
 	public List<SysTreeNodeVo> getTree(@RequestBody SysTreeNodeVo node) {
 		List<SysTreeNodeVo> nodeVoList = new ArrayList<SysTreeNodeVo>();
 		if (node == null || node.getType() == null) {

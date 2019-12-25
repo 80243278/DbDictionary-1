@@ -41,6 +41,7 @@ public class SysDictTableServiceImpl extends ServiceImpl<SysDictTableMapper, Sys
 			for (SysDictTable b : list) {
 				SysDictTableDto nb = new SysDictTableDto();
 				BeanUtils.copyProperties(b, nb);
+				newList.add(nb);
 			}
 		}
 
@@ -67,6 +68,7 @@ public class SysDictTableServiceImpl extends ServiceImpl<SysDictTableMapper, Sys
 			for (SysDictTable b : list) {
 				SysDictTableDto nb = new SysDictTableDto();
 				BeanUtils.copyProperties(b, nb);
+				newList.add(nb);
 			}
 		}
 

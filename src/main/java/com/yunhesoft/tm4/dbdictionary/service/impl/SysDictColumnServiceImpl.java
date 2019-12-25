@@ -41,6 +41,7 @@ public class SysDictColumnServiceImpl extends ServiceImpl<SysDictColumnMapper, S
 			for (SysDictColumn b : list) {
 				SysDictColumnDto nb = new SysDictColumnDto();
 				BeanUtils.copyProperties(b, nb);
+				newList.add(nb);
 			}
 		}
 
@@ -67,6 +68,7 @@ public class SysDictColumnServiceImpl extends ServiceImpl<SysDictColumnMapper, S
 			for (SysDictColumn b : list) {
 				SysDictColumnDto nb = new SysDictColumnDto();
 				BeanUtils.copyProperties(b, nb);
+				newList.add(nb);
 			}
 		}
 
