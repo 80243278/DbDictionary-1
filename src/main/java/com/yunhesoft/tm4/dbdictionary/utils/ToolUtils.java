@@ -12,13 +12,13 @@ public class ToolUtils {
 	 * @param number int 需要获得的UUID数量 
 	 * @return String[] UUID数组 
 	 */
-	public static String[] getUUID(int number) {
+	public static String[] getUuid(int number) {
 		if (number < 1) {
 			return null;
 		}
 		String[] retArray = new String[number];
 		for (int i = 0; i < number; i++) {
-			retArray[i] = getUUID();
+			retArray[i] = getUuid();
 		}
 		return retArray;
 	}
@@ -27,7 +27,7 @@ public class ToolUtils {
 	 * 获得一个UUID 
 	 * @return String UUID 
 	 */
-	public static String getUUID() {
+	public static String getUuid() {
 		String uuid = UUID.randomUUID().toString();
 		// 去掉“-”符号
 		return uuid.replaceAll("-", "");

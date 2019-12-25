@@ -4,9 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author zhang.jt
- * @category 普通操作应答
+ * 普通操作应答
  * 		例如：增、删、改操作返回结果（成功/失败）
+ * @author zhang.jt
  */
 @Getter
 @Setter

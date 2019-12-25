@@ -1,14 +1,15 @@
-package com.yunhesoft.tm4.dbdictionary.entity.dto;
+package com.yunhesoft.tm4.dbdictionary.entity.vo;
 
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author: zhang.jt
+ * 数据库表字典表POJO
+ * @author zhang.jt
  */
 @Getter
 @Setter
-public class SysDictTableDto {
+public class SysDictTableVo {
 	private String tmuid;
 	private String tableName;
 	private String tableShowName;

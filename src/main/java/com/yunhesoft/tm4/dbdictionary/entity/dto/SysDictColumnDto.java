@@ -8,12 +8,14 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class SysDictTableDto {
+public class SysDictColumnDto {
 	private String tmuid;
-	private String tableName;
-	private String tableShowName;
-	private String moduleCode;
-	private String dbConnId;
+	private String columnName;
+	private String columnShowName;
+	private String tableId;
+	private String dataType;
+	private Boolean notNull;
+	private Boolean primaryKey;
 	private Boolean used;
 	private Integer sort;
 	private String remark;

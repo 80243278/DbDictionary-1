@@ -9,37 +9,37 @@ import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yunhesoft.tm4.dbdictionary.entity.dto.SysModuleDto;
-import com.yunhesoft.tm4.dbdictionary.entity.po.SysModule;
-import com.yunhesoft.tm4.dbdictionary.mapper.SysModuleMapper;
-import com.yunhesoft.tm4.dbdictionary.service.ISysModuleService;
-import com.yunhesoft.tm4.dbdictionary.utils.ToolUtils;
+import com.yunhesoft.tm4.dbdictionary.entity.dto.SysDictColumnDto;
+import com.yunhesoft.tm4.dbdictionary.entity.po.SysDictColumn;
+import com.yunhesoft.tm4.dbdictionary.mapper.SysDictColumnMapper;
+import com.yunhesoft.tm4.dbdictionary.service.ISysDictColumnService;
 
 /**
  * @author zhang.jt
  */
 @Service
-@Repository("SysModuleServiceImpl")
-public class SysModuleServiceImpl extends ServiceImpl<SysModuleMapper, SysModule> implements ISysModuleService {
+@Repository("SysDictColumnServiceImpl")
+public class SysDictColumnServiceImpl extends ServiceImpl<SysDictColumnMapper, SysDictColumn>
+		implements ISysDictColumnService {
 	/**
-	 * @category 通过ID获取模块数据
+	 * @category 通过ID获取表数据
 	 * @param tmuid
 	 * @return
 	 */
 	@Override
-	public List<SysModuleDto> getSysModuleById(String tmuid) {
+	public List<SysDictColumnDto> getSysDictColumnById(String tmuid) {
 		if (tmuid == null || "".equals(tmuid)) {
 			return null;
 		}
-		LambdaQueryWrapper<SysModule> query = new LambdaQueryWrapper<SysModule>();
-		query.eq(SysModule::getTmuid, tmuid);
-		query.orderByAsc(SysModule::getSort);
-		List<SysModule> list = this.list(query);
-		List<SysModuleDto> newList = new ArrayList<SysModuleDto>();
+		LambdaQueryWrapper<SysDictColumn> query = new LambdaQueryWrapper<SysDictColumn>();
+		query.eq(SysDictColumn::getTmuid, tmuid);
+		query.orderByAsc(SysDictColumn::getSort);
+		List<SysDictColumn> list = this.list(query);
+		List<SysDictColumnDto> newList = new ArrayList<SysDictColumnDto>();
 
 		if (list != null) {
-			for (SysModule b : list) {
-				SysModuleDto nb = new SysModuleDto();
+			for (SysDictColumn b : list) {
+				SysDictColumnDto nb = new SysDictColumnDto();
 				BeanUtils.copyProperties(b, nb);
 			}
 		}
@@ -48,46 +48,44 @@ public class SysModuleServiceImpl extends ServiceImpl<SysModuleMapper, SysModule
 	}
 
 	/**
-	 * @category 添加模块数据
+	 * @category 添加表数据
 	 * @param modDto
 	 * @return
 	 */
 	@Override
-	public boolean addSysModule(SysModuleDto modDto) {
+	public boolean addSysDictColumn(SysDictColumnDto modDto) {
 		if (modDto == null || modDto.getTmuid() == null) {
 			return false;
 		}
-		SysModule modNew = new SysModule();
-		BeanUtils.copyProperties(modDto, modNew);
-		String uuid = ToolUtils.getUuid();
-		modNew.setModuleCode(uuid);
-		boolean flag = this.save(modNew);
-		return flag;
-	}
-
-	/**
-	 * @category 修改模块
-	 * @param modDto
-	 * @return
-	 */
-	@Override
-	public boolean updSysModule(SysModuleDto modDto) {
-		if (modDto == null || modDto.getTmuid() == null) {
-			return false;
-		}
-		SysModule modNew = new SysModule();
+		SysDictColumn modNew = new SysDictColumn();
 		BeanUtils.copyProperties(modDto, modNew);
 		boolean flag = this.save(modNew);
 		return flag;
 	}
 
 	/**
-	 * @category 删除模块
+	 * @category 修改表
 	 * @param modDto
 	 * @return
 	 */
 	@Override
-	public boolean delSysModule(SysModuleDto modDto) {
+	public boolean updSysDictColumn(SysDictColumnDto modDto) {
+		if (modDto == null || modDto.getTmuid() == null) {
+			return false;
+		}
+		SysDictColumn modNew = new SysDictColumn();
+		BeanUtils.copyProperties(modDto, modNew);
+		boolean flag = this.save(modNew);
+		return flag;
+	}
+
+	/**
+	 * @category 删除表
+	 * @param modDto
+	 * @return
+	 */
+	@Override
+	public boolean delSysDictColumn(SysDictColumnDto modDto) {
 		if (modDto == null || modDto.getTmuid() == null) {
 			return false;
 		}

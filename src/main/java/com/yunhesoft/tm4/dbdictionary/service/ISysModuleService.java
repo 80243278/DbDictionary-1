@@ -12,7 +12,7 @@ import io.swagger.annotations.Api;
  * @author zhang.jt
  */
 @Service
-@Api(tags = "用户表接口类")
+@Api(tags = "字典模块接口类")
 public interface ISysModuleService {
 	/**
 	 * 通过ID获取模块数据
