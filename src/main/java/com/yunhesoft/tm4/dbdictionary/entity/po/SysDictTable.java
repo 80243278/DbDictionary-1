@@ -25,6 +25,8 @@ public class SysDictTable {
 	@TableId(type = IdType.ID_WORKER_STR)
 	private String tmuid;
 	@Column(length = 50)
+	private String moduleId;
+	@Column(length = 50)
 	private String tableName;
 	@Column(length = 200)
 	private String tableShowName;

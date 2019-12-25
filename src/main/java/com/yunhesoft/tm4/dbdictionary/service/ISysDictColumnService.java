@@ -22,6 +22,13 @@ public interface ISysDictColumnService {
 	public List<SysDictColumnDto> getSysDictColumnById(String tmuid);
 
 	/**
+	 * 通过表ID获取表字段数据
+	 * @param tableId
+	 * @return List<SysDictColumnDto>
+	 */
+	public List<SysDictColumnDto> getSysDictColumnByTableId(String tableId);
+
+	/**
 	 * 添加表字段
 	 * @param colDto
 	 * @return

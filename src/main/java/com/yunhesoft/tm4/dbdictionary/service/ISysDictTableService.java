@@ -22,6 +22,13 @@ public interface ISysDictTableService {
 	public List<SysDictTableDto> getSysDictTableById(String tmuid);
 
 	/**
+	 * 通过模块id获取数据库表数据
+	 * @param moduleId
+	 * @return
+	 */
+	public List<SysDictTableDto> getSysDictTableByModuleId(String moduleId);
+
+	/**
 	 * 添加表
 	 * @param tableDto
 	 * @return

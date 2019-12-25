@@ -22,6 +22,13 @@ public interface ISysModuleService {
 	public List<SysModuleDto> getSysModuleById(String tmuid);
 
 	/**
+	 * 通过数据库连接ID获取模块数据
+	 * @param connId
+	 * @return
+	 */
+	public List<SysModuleDto> getSysModuleByConnId(String connId);
+
+	/**
 	 * 添加模块
 	 * @param modDto
 	 * @return

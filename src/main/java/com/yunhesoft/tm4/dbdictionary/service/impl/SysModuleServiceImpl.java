@@ -48,6 +48,32 @@ public class SysModuleServiceImpl extends ServiceImpl<SysModuleMapper, SysModule
 	}
 
 	/**
+	 * 通过数据库连接ID获取模块数据
+	 * @param connId
+	 * @return
+	 */
+	@Override
+	public List<SysModuleDto> getSysModuleByConnId(String connId) {
+		if (connId == null || "".equals(connId)) {
+			return null;
+		}
+		LambdaQueryWrapper<SysModule> query = new LambdaQueryWrapper<SysModule>();
+		query.eq(SysModule::getDbConnId, connId);
+		query.orderByAsc(SysModule::getSort);
+		List<SysModule> list = this.list(query);
+		List<SysModuleDto> newList = new ArrayList<SysModuleDto>();
+
+		if (list != null) {
+			for (SysModule b : list) {
+				SysModuleDto nb = new SysModuleDto();
+				BeanUtils.copyProperties(b, nb);
+			}
+		}
+
+		return newList;
+	}
+
+	/**
 	 * @category 添加模块数据
 	 * @param modDto
 	 * @return

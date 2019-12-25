@@ -48,6 +48,32 @@ public class SysDictTableServiceImpl extends ServiceImpl<SysDictTableMapper, Sys
 	}
 
 	/**
+	 * 通过模块id获取数据库表数据
+	 * @param moduleId
+	 * @return
+	 */
+	@Override
+	public List<SysDictTableDto> getSysDictTableByModuleId(String moduleId) {
+		if (moduleId == null || "".equals(moduleId)) {
+			return null;
+		}
+		LambdaQueryWrapper<SysDictTable> query = new LambdaQueryWrapper<SysDictTable>();
+		query.eq(SysDictTable::getModuleId, moduleId);
+		query.orderByAsc(SysDictTable::getSort);
+		List<SysDictTable> list = this.list(query);
+		List<SysDictTableDto> newList = new ArrayList<SysDictTableDto>();
+
+		if (list != null) {
+			for (SysDictTable b : list) {
+				SysDictTableDto nb = new SysDictTableDto();
+				BeanUtils.copyProperties(b, nb);
+			}
+		}
+
+		return newList;
+	}
+
+	/**
 	 * @category 添加表数据
 	 * @param modDto
 	 * @return
