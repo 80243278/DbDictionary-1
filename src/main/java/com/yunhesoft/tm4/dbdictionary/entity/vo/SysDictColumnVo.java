@@ -33,4 +33,8 @@ public class SysDictColumnVo {
 	private Integer sort;
 	@ApiModelProperty(value = "备注")
 	private String remark;
+	@ApiModelProperty(value = "字段长度")
+	private Integer columnLength;
+	@ApiModelProperty(value = "小数精度")
+	private Integer columnDecimalPlace;
 }

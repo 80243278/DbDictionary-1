@@ -19,8 +19,8 @@ configurations {
 }
 
 repositories {
-	//mavenCentral()
-	maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+	mavenCentral()
+	//maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
 }
 
 dependencies {
@@ -37,8 +37,11 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.alibaba:druid-spring-boot-starter:1.1.9'
 	implementation 'com.alibaba:druid:1.1.14'
 	//持久层
-	compile 'com.baomidou:mybatis-plus-boot-starter:3.2.0'
+	implementation 'com.baomidou:mybatis-plus-boot-starter:3.2.0'
+	//actable：mybatis扩展功能，自动修改字段
+	implementation 'com.gitee.sunchenbin.mybatis.actable:mybatis-enhance-actable:1.0.8.1.RELEASE'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	//implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	//驱动程序
 	runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
 	

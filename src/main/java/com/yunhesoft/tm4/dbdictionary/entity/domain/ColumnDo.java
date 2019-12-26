@@ -1,15 +1,15 @@
-package com.yunhesoft.tm4.dbdictionary.entity.dto;
+package com.yunhesoft.tm4.dbdictionary.entity.domain;
 
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author: zhang.jt
+ * @author zhang.jt
  */
 @Getter
 @Setter
-public class SysDictColumnDto {
-	private String tmuid;
+public class ColumnDo {
+	private String tableName;
 	private String columnName;
 	private String columnShowName;
 	private String tableId;
@@ -21,4 +21,7 @@ public class SysDictColumnDto {
 	private String remark;
 	private Integer size;
 	private Integer scale;
+	private String keyName;
+	private String keyDesc;
+	private Boolean isKey;
 }

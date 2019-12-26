@@ -13,6 +13,7 @@ import com.yunhesoft.tm4.dbdictionary.entity.dto.SysDictTableDto;
 import com.yunhesoft.tm4.dbdictionary.entity.po.SysDictTable;
 import com.yunhesoft.tm4.dbdictionary.mapper.SysDictTableMapper;
 import com.yunhesoft.tm4.dbdictionary.service.ISysDictTableService;
+import com.yunhesoft.tm4.dbdictionary.utils.ToolUtils;
 
 /**
  * @author zhang.jt
@@ -81,14 +82,20 @@ public class SysDictTableServiceImpl extends ServiceImpl<SysDictTableMapper, Sys
 	 * @return
 	 */
 	@Override
-	public boolean addSysDictTable(SysDictTableDto modDto) {
+	public SysDictTableDto addSysDictTable(SysDictTableDto modDto) {
+		SysDictTableDto rstDto = null;
 		if (modDto == null || modDto.getTmuid() == null) {
-			return false;
+			return rstDto;
 		}
 		SysDictTable modNew = new SysDictTable();
+		modDto.setTmuid(ToolUtils.getUuid());
 		BeanUtils.copyProperties(modDto, modNew);
 		boolean flag = this.save(modNew);
-		return flag;
+		if (flag == true) {
+			rstDto = modDto;
+		}
+
+		return rstDto;
 	}
 
 	/**

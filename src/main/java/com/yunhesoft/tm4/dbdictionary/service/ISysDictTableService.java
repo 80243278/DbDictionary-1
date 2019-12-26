@@ -33,7 +33,7 @@ public interface ISysDictTableService {
 	 * @param tableDto
 	 * @return
 	 */
-	public boolean addSysDictTable(SysDictTableDto tableDto);
+	public SysDictTableDto addSysDictTable(SysDictTableDto tableDto);
 
 	/**
 	 * 修改表

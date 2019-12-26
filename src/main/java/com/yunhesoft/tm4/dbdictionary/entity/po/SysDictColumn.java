@@ -38,4 +38,6 @@ public class SysDictColumn {
 	private Integer sort;
 	@Column(length = 4000)
 	private String remark;
+	private Integer size;
+	private Integer scale;
 }
