@@ -64,10 +64,10 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 
 		try {
 			String sql = "";
-			sql += " select a.name as tableName, b.name as colName,b.max_length as size,b.precision,b.scale,b.is_nullable isnull,c.value as remark,d.name keyName,d.type_desc keyDesc,d.is_primary_key isKey";
-			sql += " from sys.tables a left join sys.columns b on a.object_id=b.object_id  ";
-			sql += " left join sys.extended_properties c on a.object_id=c.major_id  and b.column_id=c.minor_id  ";
-			sql += " left join sys.indexes d on a.object_id=d.object_id and d.is_primary_key = 1 and d.index_id=b.column_id";
+			sql += " select a.name as tableName, b.name as colName,b.max_length as size,b.precision,b.scale,b.is_nullable isnull,c.value as remark,d.constraint_name pkName";
+			sql += " from sys.tables a left join sys.columns b on a.object_id=b.object_id ";
+			sql += " left join sys.extended_properties c on a.object_id=c.major_id  and b.column_id=c.minor_id";
+			sql += " left join information_schema.key_column_usage d on a.name=d.table_name and d.column_name=b.name";
 			sql += " where a.name='" + tableName + "'";
 			sql += " order by column_id";
 
@@ -88,9 +88,7 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 					colDo.setNotNull(true);
 				}
 				colDo.setRemark(rs.getString("remark"));
-				colDo.setKeyName(rs.getString("keyName"));
-				colDo.setKeyDesc(rs.getString("keyDesc"));
-				colDo.setIsKey(rs.getBoolean("isKey"));
+				colDo.setPkName(rs.getString("pkName"));
 
 				cols.put(colDo.getColumnName(), colDo);
 			}
@@ -113,6 +111,9 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 
 		try {
 			List<ColumnDo> keyList = new ArrayList<ColumnDo>();
+			DataSource dataSource = applicationContext.getBean(DataSource.class);
+			Connection conn = dataSource.getConnection();
+			PreparedStatement ps = null;
 
 			String sql = "";
 
@@ -124,7 +125,7 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 				if (i > 0) {
 					sql += ",";
 				}
-				sql += " " + colBean.getColumnName() + " " + getColumnType(colBean) + " " + getIfNull(colBean);
+				sql += colBean.getColumnName() + " " + getColumnType(colBean) + " " + getIfNull(colBean);
 				// 缓存关键列
 				if (colBean.getPrimaryKey().booleanValue()) {
 					keyList.add(colBean);
@@ -132,22 +133,42 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 
 				i++;
 			}
-
-			/* [tmuid] varchar(50) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-			 [db_dialect] varchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-			 [db_name] varchar(200) COLLATE Chinese_PRC_CI_AS  NULL,
-			 [db_pass_word] varchar(50) COLLATE Chinese_PRC_CI_AS  NULL,
-			 [db_show_name] varchar(200) COLLATE Chinese_PRC_CI_AS  NULL,
-			 [db_url] varchar(200) COLLATE Chinese_PRC_CI_AS  NULL,
-			 [db_user_name] varchar(50) COLLATE Chinese_PRC_CI_AS  NULL,
-			 [remark] varchar(4000) COLLATE Chinese_PRC_CI_AS  NULL,
-			 [sort] int  NULL,
-			 [used] bit  NULL*/
 			sql += " )";
 
-			DataSource dataSource = applicationContext.getBean(DataSource.class);
-			Connection conn = dataSource.getConnection();
-			PreparedStatement ps = conn.prepareStatement(sql);
+			ps = conn.prepareStatement(sql);
+			flag = ps.execute(sql);
+			if (flag == false) {
+				return flag;
+			}
+
+			// 添加字段说明
+			sql = "";
+			for (ColumnDo colBean : colDoNewList) {
+				sql += "exec sys.sp_addextendedproperty @name=N'MS_Description', @value=N''" + colBean.getRemark()
+						+ "', @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'"
+						+ tbDoNew.getTableName() + "', @level2type=N'COLUMN',@level2name=N'" + colBean.getColumnName()
+						+ "';";
+			}
+			ps = conn.prepareStatement(sql);
+			flag = ps.execute(sql);
+			if (flag == false) {
+				return flag;
+			}
+
+			// 添加主键
+			sql = "";
+			sql += "alter table " + tbDoNew.getTableName() + " [add constraint PK_" + tbDoNew.getTableName()
+					+ "] primary key(";
+			int j = 0;
+			for (ColumnDo colBean : keyList) {
+				if (j > 0) {
+					sql += ",";
+				}
+				sql += colBean.getColumnName();
+				j++;
+			}
+			sql += ")";
+			ps = conn.prepareStatement(sql);
 			flag = ps.execute(sql);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -166,6 +187,42 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 	@Override
 	public boolean alterTable(TableDo tbDo, List<ColumnDo> colDoNewList, List<ColumnDo> colDoAlterList) {
 		boolean flag = true;
+
+		try {
+			DataSource dataSource = applicationContext.getBean(DataSource.class);
+			Connection conn = dataSource.getConnection();
+			PreparedStatement ps = null;
+
+			String sql = "";
+
+			// 新增字段
+			sql = "";
+			for (ColumnDo colBean : colDoNewList) {
+				sql += "alter table " + tbDo.getTableName() + " add " + colBean.getColumnName() + " "
+						+ getColumnType(colBean) + " " + getIfNull(colBean) + ";";
+			}
+			ps = conn.prepareStatement(sql);
+			flag = ps.execute(sql);
+
+			// 修改字段类型
+			sql = "";
+			for (ColumnDo colBean : colDoNewList) {
+				// 修改有风险，单个执行
+				try {
+					sql = "alter table " + tbDo.getTableName() + " alter column " + colBean.getColumnName() + " "
+							+ getColumnType(colBean) + " " + getIfNull(colBean) + ";";
+					ps = conn.prepareStatement(sql);
+					flag = ps.execute(sql);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+			// 检查并修改主键
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return flag;
 	}

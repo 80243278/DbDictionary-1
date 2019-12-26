@@ -21,7 +21,5 @@ public class ColumnDo {
 	private String remark;
 	private Integer size;
 	private Integer scale;
-	private String keyName;
-	private String keyDesc;
-	private Boolean isKey;
+	private String pkName;
 }

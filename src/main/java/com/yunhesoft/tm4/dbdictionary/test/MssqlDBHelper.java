@@ -88,7 +88,7 @@ public class MssqlDBHelper {
 	 * @throws SQLException
 	 */
 	public static Map<String, TableDo> getAllTables(ConConfigDo config) throws SQLException {
-		Map<String, TableDo> tables = new HashMap<String, TableDo>();
+		Map<String, TableDo> tables = new HashMap<String, TableDo>(10);
 		String sql = "SELECT id,packName,tableName,tableNameCh,description FROM  " + SSHTABLES;
 		Connection conn = null;
 		try {
@@ -132,9 +132,9 @@ public class MssqlDBHelper {
 				table = new TableDo(id, packName, tableName, tableNameCh, description);
 			}
 			// 如果需要查列，则查出列集合
-			if (table != null && readColumn) {
-				// table.setColumns(getColumnsByTable(config, tableName));
-			}
+			// if (table != null && readColumn) {
+			// table.setColumns(getColumnsByTable(config, tableName));
+			// }
 		} catch (Exception err) {
 			err.printStackTrace();
 		} finally {
@@ -148,7 +148,7 @@ public class MssqlDBHelper {
 	 * @param tableName 表名
 	 * */
 	public static Map<String, Column> getColumnsByTable(ConConfigDo config, String tableName) {
-		Map<String, Column> columns = new HashMap<String, Column>();
+		Map<String, Column> columns = new HashMap<String, Column>(10);
 		String sql = "SELECT id,fieldName,fieldName2,dataType,reference,description,fieldLength FROM " + SSHCOLUMNS
 				+ " where tableName='" + tableName + "'";
 		Connection conn = null;
@@ -227,7 +227,7 @@ public class MssqlDBHelper {
 			StringBuffer sql = new StringBuffer();
 			sql.append("create table ").append(table.getTableName()).append(LS);
 			// int index = 0;
-			/*for (String key : table.getColumns().keySet()) {
+			/**for (String key : table.getColumns().keySet()) {
 				Column c = table.getColumns().get(key);
 				sql.append(getCommonColumnSql(c));
 				if (index < table.getColumns().size() - 1) {
@@ -314,7 +314,8 @@ public class MssqlDBHelper {
 	 * 修改表信息
 	 * */
 	public static boolean updateColumn(ConConfigDo config, Column cDb, Column cExcel) throws Exception {
-		if (!cDb.equals(cExcel)) {// 如果需要修改
+		// 如果需要修改
+		if (!cDb.equals(cExcel)) {
 			Connection conn = null;
 			try {
 				conn = ConnectionHelper.getCon(config);
