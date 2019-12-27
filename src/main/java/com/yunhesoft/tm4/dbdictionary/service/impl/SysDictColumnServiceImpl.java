@@ -60,7 +60,7 @@ public class SysDictColumnServiceImpl extends ServiceImpl<SysDictColumnMapper, S
 			return null;
 		}
 		LambdaQueryWrapper<SysDictColumn> query = new LambdaQueryWrapper<SysDictColumn>();
-		query.eq(SysDictColumn::getColumnShowName, tableId);
+		query.eq(SysDictColumn::getTableId, tableId);
 		query.orderByAsc(SysDictColumn::getSort);
 		List<SysDictColumn> list = this.list(query);
 		List<SysDictColumnDto> newList = new ArrayList<SysDictColumnDto>();
@@ -136,29 +136,40 @@ public class SysDictColumnServiceImpl extends ServiceImpl<SysDictColumnMapper, S
 
 		try {
 			// 删除
-			Collection<SysDictColumn> collectDel = new ArrayList<SysDictColumn>();
-			for (SysDictColumnDto colDto : delDtoList) {
-				SysDictColumn col = new SysDictColumn();
-				BeanUtils.copyProperties(colDto, col);
-				collectDel.add(col);
+			if (delDtoList != null) {
+				Collection<SysDictColumn> collectDel = new ArrayList<SysDictColumn>();
+				List<String> tmuidList = new ArrayList<String>();
+				for (SysDictColumnDto colDto : delDtoList) {
+					tmuidList.add(colDto.getTmuid());
+				}
+				if (collectDel.size() > 0) {
+					flag = this.removeByIds(tmuidList);
+				}
 			}
-			flag = this.removeByIds(collectDel);
 			// 添加
-			Collection<SysDictColumn> collectAdd = new ArrayList<SysDictColumn>();
-			for (SysDictColumnDto colDto : addDtoList) {
-				SysDictColumn col = new SysDictColumn();
-				BeanUtils.copyProperties(colDto, col);
-				collectAdd.add(col);
+			if (addDtoList != null) {
+				Collection<SysDictColumn> collectAdd = new ArrayList<SysDictColumn>();
+				for (SysDictColumnDto colDto : addDtoList) {
+					SysDictColumn col = new SysDictColumn();
+					BeanUtils.copyProperties(colDto, col);
+					collectAdd.add(col);
+				}
+				if (collectAdd.size() > 0) {
+					flag = this.saveBatch(collectAdd);
+				}
 			}
-			flag = this.saveBatch(collectAdd);
 			// 更新
-			Collection<SysDictColumn> collectUpd = new ArrayList<SysDictColumn>();
-			for (SysDictColumnDto colDto : updDtoList) {
-				SysDictColumn col = new SysDictColumn();
-				BeanUtils.copyProperties(colDto, col);
-				collectUpd.add(col);
+			if (updDtoList != null) {
+				Collection<SysDictColumn> collectUpd = new ArrayList<SysDictColumn>();
+				for (SysDictColumnDto colDto : updDtoList) {
+					SysDictColumn col = new SysDictColumn();
+					BeanUtils.copyProperties(colDto, col);
+					collectUpd.add(col);
+				}
+				if (collectUpd.size() > 0) {
+					flag = this.updateBatchById(collectUpd);
+				}
 			}
-			flag = this.updateBatchById(collectUpd);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

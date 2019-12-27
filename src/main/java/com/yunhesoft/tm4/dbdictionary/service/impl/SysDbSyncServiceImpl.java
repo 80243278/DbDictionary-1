@@ -15,6 +15,7 @@ import com.yunhesoft.tm4.dbdictionary.entity.dto.SysDictColumnDto;
 import com.yunhesoft.tm4.dbdictionary.entity.dto.SysDictTableDto;
 import com.yunhesoft.tm4.dbdictionary.repository.IMssqlUtils;
 import com.yunhesoft.tm4.dbdictionary.service.ISysDbSyncService;
+import com.yunhesoft.tm4.dbdictionary.service.ISysDictColumnService;
 
 /**
  * @author zhang.jt
@@ -22,11 +23,10 @@ import com.yunhesoft.tm4.dbdictionary.service.ISysDbSyncService;
 @Service
 @Repository
 public class SysDbSyncServiceImpl implements ISysDbSyncService {
-	/*@Autowired
-	ApplicationContext applicationContext;*/
-
 	@Autowired
-	IMssqlUtils mssqlUtils;
+	private IMssqlUtils mssqlUtils;
+	@Autowired
+	private ISysDictColumnService colService;
 
 	/**
 	 * 同步字典数据到数据库
@@ -47,6 +47,7 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 		if (tbDo == null) {
 			TableDo tbDoNew = new TableDo();
 			List<ColumnDo> colDoNewList = new ArrayList<ColumnDo>();
+			BeanUtils.copyProperties(tableDto, tbDoNew);
 			tbDoNew.setId(tableDto.getTmuid());
 			tbDoNew.setTableName(tableDto.getTableName());
 
@@ -92,6 +93,33 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 	@Override
 	public boolean syncDbToDict(SysDictTableDto tableDto) {
 		boolean flag = true;
+
+		// 获取数据表的字段
+		Map<String, ColumnDo> colMap = mssqlUtils.getTableColumns(tableDto.getTableName());
+		List<String> colNameList = new ArrayList<String>(colMap.keySet());
+		List<SysDictColumnDto> addColDtoList = new ArrayList<SysDictColumnDto>();
+		int sort = 1;
+		for (String colName : colNameList) {
+			ColumnDo colDo = colMap.get(colName);
+			SysDictColumnDto colDto = new SysDictColumnDto();
+			BeanUtils.copyProperties(colDo, colDto);
+			colDto.setSort(sort);
+			boolean primaryKey = false;
+			if (colDo.getPkName() != null && !"".equals(colDo.getPkName())) {
+				primaryKey = true;
+			}
+			colDto.setPrimaryKey(primaryKey);
+			colDto.setColumnShowName(colDto.getColumnName());
+			colDto.setTableId(tableDto.getTmuid());
+			colDto.setUsed(true);
+			colDto.setDataType(colDo.getDataType());
+			addColDtoList.add(colDto);
+			sort++;
+		}
+		// 老数据
+		List<SysDictColumnDto> delColDtoList = colService.getSysDictColumnByTableId(tableDto.getTmuid());
+		// 保存列数据
+		flag = colService.saveSysDictColumn(addColDtoList, delColDtoList, null);
 
 		return flag;
 	}

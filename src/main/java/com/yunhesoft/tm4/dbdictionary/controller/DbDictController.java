@@ -354,9 +354,9 @@ public class DbDictController {
 
 	@ResponseBody
 	@RequestMapping(value = "/syncDb", method = { RequestMethod.POST })
-	@ApiOperation(value = "正向同步（字典->数据库）")
-	/**@ApiImplicitParam(name = "tableId", value = "表id", required = true)*/
-	public ResponseVo syncDictToDb(SysDictTableColumnVo tableAndCol) {
+	@ApiOperation(value = "正向同步（字典 → 数据库）")
+	@ApiImplicitParam(name = "tableAndCol", value = "表与列", required = true, paramType = "body", dataType = "SysDictTableColumnVo")
+	public ResponseVo syncDictToDb(@RequestBody SysDictTableColumnVo tableAndCol) {
 		ResponseVo resp = ResponseVo.ok("同步成功");
 
 		if (tableAndCol == null || tableAndCol.getTableVo() == null || tableAndCol.getColVoList() == null) {
@@ -370,6 +370,8 @@ public class DbDictController {
 		for (SysDictColumnVo voBean : tableAndCol.getColVoList()) {
 			SysDictColumnDto colDto = new SysDictColumnDto();
 			BeanUtils.copyProperties(voBean, colDto);
+			colDto.setSize(voBean.getColumnLength());
+			colDto.setScale(voBean.getColumnDecimalPlace());
 			colDtoList.add(colDto);
 		}
 
@@ -383,12 +385,12 @@ public class DbDictController {
 
 	@ResponseBody
 	@RequestMapping(value = "/syncDict", method = { RequestMethod.POST })
-	@ApiOperation(value = "反向同步（数据库->字典）")
-	/**@ApiImplicitParam(name = "tableId", value = "表id", required = true)*/
-	public ResponseVo syncDbToDict(SysDictTableVo tableVo) {
+	@ApiOperation(value = "反向同步（数据库 → 字典）")
+	@ApiImplicitParam(name = "table", value = "表", required = true, paramType = "body", dataType = "SysDictTableVo")
+	public ResponseVo syncDbToDict(@RequestBody SysDictTableVo table) {
 		ResponseVo resp = ResponseVo.ok("同步成功");
 		SysDictTableDto tableDto = new SysDictTableDto();
-		BeanUtils.copyProperties(tableVo, tableDto);
+		BeanUtils.copyProperties(table, tableDto);
 		boolean flag = syncService.syncDbToDict(tableDto);
 		if (flag == false) {
 			resp = ResponseVo.error("同步失败");

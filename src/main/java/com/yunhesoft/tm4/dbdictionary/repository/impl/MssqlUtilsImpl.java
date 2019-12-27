@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 	 */
 	@Override
 	public Map<String, TableDo> getAllTables() {
-		Map<String, TableDo> tables = new HashMap<String, TableDo>(10);
+		Map<String, TableDo> tables = new LinkedHashMap<String, TableDo>(10);
 
 		try {
 			DataSource dataSource = applicationContext.getBean(DataSource.class);
@@ -60,14 +60,16 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 	 */
 	@Override
 	public Map<String, ColumnDo> getTableColumns(String tableName) {
-		Map<String, ColumnDo> cols = new HashMap<String, ColumnDo>(10);
+		Map<String, ColumnDo> cols = new LinkedHashMap<String, ColumnDo>(10);
 
 		try {
 			String sql = "";
-			sql += " select a.name as tableName, b.name as colName,b.max_length as size,b.precision,b.scale,b.is_nullable isnull,c.value as remark,d.constraint_name pkName";
+			sql += " select a.name as tableName, b.name as colName,b.max_length as size,b.precision,b.scale,b.is_nullable isnull,";
+			sql += "c.value as remark,d.constraint_name pkName,e.data_type dataType";
 			sql += " from sys.tables a left join sys.columns b on a.object_id=b.object_id ";
 			sql += " left join sys.extended_properties c on a.object_id=c.major_id  and b.column_id=c.minor_id";
 			sql += " left join information_schema.key_column_usage d on a.name=d.table_name and d.column_name=b.name";
+			sql += " left join INFORMATION_SCHEMA.columns e on a.name=e.table_name and b.name=e.column_name";
 			sql += " where a.name='" + tableName + "'";
 			sql += " order by column_id";
 
@@ -89,6 +91,7 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 				}
 				colDo.setRemark(rs.getString("remark"));
 				colDo.setPkName(rs.getString("pkName"));
+				colDo.setDataType(rs.getString("dataType"));
 
 				cols.put(colDo.getColumnName(), colDo);
 			}
@@ -136,40 +139,53 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 			sql += " )";
 
 			ps = conn.prepareStatement(sql);
-			flag = ps.execute(sql);
-			if (flag == false) {
-				return flag;
+			try {
+				ps.execute();
+				flag = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
 			}
 
 			// 添加字段说明
 			sql = "";
 			for (ColumnDo colBean : colDoNewList) {
-				sql += "exec sys.sp_addextendedproperty @name=N'MS_Description', @value=N''" + colBean.getRemark()
-						+ "', @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'"
-						+ tbDoNew.getTableName() + "', @level2type=N'COLUMN',@level2name=N'" + colBean.getColumnName()
-						+ "';";
+				sql += "EXEC sp_addextendedproperty 'MS_Description', N'" + colBean.getRemark()
+						+ "', 'SCHEMA', N'dbo', 'TABLE', N'" + tbDoNew.getTableName() + "', 'COLUMN', N'"
+						+ colBean.getColumnName() + "';";
 			}
 			ps = conn.prepareStatement(sql);
-			flag = ps.execute(sql);
-			if (flag == false) {
-				return flag;
+			try {
+				ps.execute();
+				flag = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
 			}
 
 			// 添加主键
-			sql = "";
-			sql += "alter table " + tbDoNew.getTableName() + " [add constraint PK_" + tbDoNew.getTableName()
-					+ "] primary key(";
-			int j = 0;
-			for (ColumnDo colBean : keyList) {
-				if (j > 0) {
-					sql += ",";
+			if (keyList.size() > 0) {
+				sql = "";
+				sql += "alter table " + tbDoNew.getTableName() + " add constraint PK_" + tbDoNew.getTableName()
+						+ " primary key(";
+				int j = 0;
+				for (ColumnDo colBean : keyList) {
+					if (j > 0) {
+						sql += ",";
+					}
+					sql += colBean.getColumnName();
+					j++;
 				}
-				sql += colBean.getColumnName();
-				j++;
+				sql += ")";
+				ps = conn.prepareStatement(sql);
+				try {
+					ps.execute();
+					flag = true;
+				} catch (Exception e) {
+					e.printStackTrace();
+					return false;
+				}
 			}
-			sql += ")";
-			ps = conn.prepareStatement(sql);
-			flag = ps.execute(sql);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -192,6 +208,8 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 			DataSource dataSource = applicationContext.getBean(DataSource.class);
 			Connection conn = dataSource.getConnection();
 			PreparedStatement ps = null;
+			List<ColumnDo> keyList = new ArrayList<ColumnDo>();
+			List<ColumnDo> newKeyList = new ArrayList<ColumnDo>();
 
 			String sql = "";
 
@@ -200,26 +218,146 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 			for (ColumnDo colBean : colDoNewList) {
 				sql += "alter table " + tbDo.getTableName() + " add " + colBean.getColumnName() + " "
 						+ getColumnType(colBean) + " " + getIfNull(colBean) + ";";
+
+				// 缓存关键列
+				boolean ifOldPk = false;
+				if (colBean.getPkName() != null && !"".equals(colBean.getPkName())) {
+					ifOldPk = true;
+				}
+				if (colBean.getPrimaryKey().booleanValue() || ifOldPk == true) {
+					keyList.add(colBean);
+				}
 			}
 			ps = conn.prepareStatement(sql);
-			flag = ps.execute(sql);
+			try {
+				ps.execute();
+				flag = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
 
 			// 修改字段类型
 			sql = "";
-			for (ColumnDo colBean : colDoNewList) {
+			for (ColumnDo colBean : colDoAlterList) {
 				// 修改有风险，单个执行
 				try {
 					sql = "alter table " + tbDo.getTableName() + " alter column " + colBean.getColumnName() + " "
 							+ getColumnType(colBean) + " " + getIfNull(colBean) + ";";
 					ps = conn.prepareStatement(sql);
-					flag = ps.execute(sql);
+					try {
+						ps.execute();
+						flag = true;
+					} catch (Exception e) {
+						e.printStackTrace();
+						continue;
+					}
+					// 缓存关键列
+					boolean ifOldPk = false;
+					if (colBean.getPkName() != null && !"".equals(colBean.getPkName())) {
+						ifOldPk = true;
+					}
+					if (colBean.getPrimaryKey().booleanValue() || ifOldPk == true) {
+						keyList.add(colBean);
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 
 			// 检查并修改主键
+			boolean ifUpdKey = false;
+			String pkName = "";
+			sql = "";
+			for (ColumnDo colBean : keyList) {
+				// 原为主键列
+				if (colBean.getPkName() != null && !"".equals(colBean.getPkName())) {
+					pkName = colBean.getPkName();
+					// 已取消主键
+					if (colBean.getPrimaryKey() == false) {
+						ifUpdKey = true;
+					}
+				}
+				// 原为非主键列
+				else {
+					// 新主键
+					if (colBean.getPrimaryKey() == true) {
+						ifUpdKey = true;
+						newKeyList.add(colBean);
+					}
+				}
+			}
+			// 需要更新主键
+			if (ifUpdKey == true) {
+				// 删除原主键约束
+				sql = "";
+				sql += "alter table" + tbDo.getTableName() + "drop constraint" + pkName;
+				ps = conn.prepareStatement(sql);
+				try {
+					ps.execute();
+					flag = true;
+				} catch (Exception e) {
+					e.printStackTrace();
+					return false;
+				}
+				// 创建新主键约束
+				if (newKeyList.size() > 0) {
+					sql = "";
+					sql += "alter table " + tbDo.getTableName() + " add constraint PK_" + tbDo.getTableName()
+							+ " primary key(";
+					int i = 0;
+					for (ColumnDo key : newKeyList) {
+						if (i > 0) {
+							sql += ",";
+						}
+						sql += key.getColumnName();
+						i++;
+					}
+					sql += ")";
+					ps = conn.prepareStatement(sql);
+					try {
+						ps.execute();
+						flag = true;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
 
+			// 添加字段说明
+			sql = "";
+			if (colDoNewList.size() > 0) {
+				for (ColumnDo colBean : colDoNewList) {
+					sql += "EXEC sp_addextendedproperty 'MS_Description', N'" + colBean.getRemark()
+							+ "', 'SCHEMA', N'dbo', 'TABLE', N'" + tbDo.getTableName() + "', 'COLUMN', N'"
+							+ colBean.getColumnName() + "';";
+
+				}
+				ps = conn.prepareStatement(sql);
+				try {
+					ps.execute();
+					flag = true;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+			// 修改字段说明
+			sql = "";
+			if (colDoNewList.size() > 0) {
+				for (ColumnDo colBean : colDoNewList) {
+					sql += "EXEC sp_updateextendedproperty 'MS_Description', N'" + colBean.getRemark()
+							+ "', 'SCHEMA', N'dbo', 'TABLE', N'" + tbDo.getTableName() + "', 'COLUMN', N'"
+							+ colBean.getColumnName() + "';";
+				}
+			}
+			ps = conn.prepareStatement(sql);
+			try {
+				ps.execute();
+				flag = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
