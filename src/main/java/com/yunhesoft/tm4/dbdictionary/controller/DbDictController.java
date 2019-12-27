@@ -302,7 +302,7 @@ public class DbDictController {
 					SysTreeNodeVo nodeVo = new SysTreeNodeVo();
 					nodeVo.setNodeId(modDto.getTmuid());
 					nodeVo.setDataId(modDto.getTmuid());
-					nodeVo.setIsLeaf(false);
+					nodeVo.setIsLeaf(true);
 					nodeVo.setType(typeTable);
 					nodeVo.setLabel(modDto.getTableShowName());
 					nodeVo.setObj(modDto);
