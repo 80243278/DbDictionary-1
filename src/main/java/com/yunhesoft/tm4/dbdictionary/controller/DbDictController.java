@@ -397,4 +397,35 @@ public class DbDictController {
 		}
 		return resp;
 	}
+
+	@ResponseBody
+	@RequestMapping(value = "/getSyncTables", method = { RequestMethod.POST })
+	@ApiOperation(value = "获取当前库所有表")
+	/**@ApiImplicitParam(name = "table", value = "表", required = true, paramType = "body", dataType = "SysDictTableVo")*/
+	public List<SysDictTableVo> getSyncTables() {
+		List<SysDictTableVo> tbVoList = new ArrayList<SysDictTableVo>();
+		List<SysDictTableDto> tbDtoList = syncService.getSyncTables();
+
+		if (tbDtoList != null) {
+			for (SysDictTableDto tbDto : tbDtoList) {
+				SysDictTableVo tbVo = new SysDictTableVo();
+				BeanUtils.copyProperties(tbDto, tbVo);
+				tbVoList.add(tbVo);
+			}
+		}
+
+		return tbVoList;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/syncDictByTables", method = { RequestMethod.POST })
+	@ApiOperation(value = "反向同步（数据库 → 字典）")
+	@ApiImplicitParam(name = "table", value = "表", required = true, paramType = "body", dataType = "SysDictTableVo")
+	public ResponseVo syncDictByTables(@RequestBody SysDictTableVo table) {
+		ResponseVo resp = ResponseVo.ok("同步成功");
+
+		// TODO
+
+		return resp;
+	}
 }

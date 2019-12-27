@@ -96,13 +96,14 @@ public class MssqlDBHelper {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				String id = rs.getString("id");
+				/*String id = rs.getString("id");
 				String packName = rs.getString("packName");
 				String tableName = rs.getString("tableName");
 				String tableNameCh = rs.getString("tableNameCh");
-				String description = rs.getString("description");
+				String description = rs.getString("description");*/
 				// 从数据库读取出来的表名全改为小写
-				tables.put(tableName, new TableDo(id, packName, tableName, tableNameCh, description));
+				// tables.put(tableName, new TableDo(id, packName, tableName, tableNameCh,
+				// description));
 			}
 		} finally {
 			ConnectionHelper.closeCon(conn);
@@ -125,11 +126,11 @@ public class MssqlDBHelper {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				String id = rs.getString("id");
+				/*String id = rs.getString("id");
 				String packName = rs.getString("packName");
 				String tableNameCh = rs.getString("tableNameCh");
-				String description = rs.getString("description");
-				table = new TableDo(id, packName, tableName, tableNameCh, description);
+				String description = rs.getString("description");*/
+				// table = new TableDo(id, packName, tableName, tableNameCh, description);
 			}
 			// 如果需要查列，则查出列集合
 			// if (table != null && readColumn) {

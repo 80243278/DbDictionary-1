@@ -27,4 +27,10 @@ public interface ISysDbSyncService {
 	 * @return
 	 */
 	public boolean syncDbToDict(SysDictTableDto tableDto);
+
+	/**
+	 * 获取待同步数据库表数据
+	 * @return
+	 */
+	public List<SysDictTableDto> getSyncTables();
 }

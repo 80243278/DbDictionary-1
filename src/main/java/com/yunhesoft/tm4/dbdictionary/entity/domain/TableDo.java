@@ -33,21 +33,4 @@ public class TableDo {
 		this.tableName = tableName;
 	}
 
-	public TableDo(String packName, String tableName, String tableNameCh, String description) {
-		super();
-		this.packName = packName;
-		this.tableName = tableName;
-		this.tableNameCh = tableNameCh;
-		this.description = description;
-	}
-
-	public TableDo(String id, String packName, String tableName, String tableNameCh, String description) {
-		super();
-		this.id = id;
-		this.packName = packName;
-		this.tableName = tableName;
-		this.tableNameCh = tableNameCh;
-		this.description = description;
-	}
-
 }

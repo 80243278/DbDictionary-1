@@ -16,6 +16,7 @@ import com.yunhesoft.tm4.dbdictionary.entity.dto.SysDictTableDto;
 import com.yunhesoft.tm4.dbdictionary.repository.IMssqlUtils;
 import com.yunhesoft.tm4.dbdictionary.service.ISysDbSyncService;
 import com.yunhesoft.tm4.dbdictionary.service.ISysDictColumnService;
+import com.yunhesoft.tm4.dbdictionary.service.ISysDictTableService;
 
 /**
  * @author zhang.jt
@@ -27,6 +28,8 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 	private IMssqlUtils mssqlUtils;
 	@Autowired
 	private ISysDictColumnService colService;
+	@Autowired
+	private ISysDictTableService tableService;
 
 	/**
 	 * 同步字典数据到数据库
@@ -122,5 +125,40 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 		flag = colService.saveSysDictColumn(addColDtoList, delColDtoList, null);
 
 		return flag;
+	}
+
+	/**
+	 * 获取待同步数据库表数据
+	 * @return
+	 */
+	@Override
+	public List<SysDictTableDto> getSyncTables() {
+		List<SysDictTableDto> list = new ArrayList<SysDictTableDto>();
+
+		// 获取数据库中的表名
+		Map<String, TableDo> tableMap = mssqlUtils.getAllTables();
+		List<String> tbMapKeyList = new ArrayList<String>(tableMap.keySet());
+		if (tbMapKeyList.size() > 0) {
+			// 获取字典表数据
+			Map<String, SysDictTableDto> dictTbMap = tableService.getSysDictTableNameMap();
+
+			for (String tableName : tbMapKeyList) {
+				TableDo tbDo = tableMap.get(tableName);
+				SysDictTableDto tbDto = new SysDictTableDto();
+				BeanUtils.copyProperties(tbDo, tbDto);
+				tbDto.setTableShowName(tbDto.getTableName());
+
+				SysDictTableDto dictTbDto = dictTbMap.get(tbDto.getTableName());
+				if (dictTbDto != null) {
+					BeanUtils.copyProperties(dictTbDto, tbDto);
+					tbDto.setExisted(true);
+				} else {
+					tbDto.setExisted(false);
+				}
+				list.add(tbDto);
+			}
+		}
+
+		return list;
 	}
 }

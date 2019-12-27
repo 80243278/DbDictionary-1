@@ -1,7 +1,9 @@
 package com.yunhesoft.tm4.dbdictionary.service.impl;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Repository;
@@ -74,6 +76,29 @@ public class SysDictTableServiceImpl extends ServiceImpl<SysDictTableMapper, Sys
 		}
 
 		return newList;
+	}
+
+	/**
+	 * 获取字典表名数据Map
+	 * @return
+	 */
+	@Override
+	public Map<String, SysDictTableDto> getSysDictTableNameMap() {
+		Map<String, SysDictTableDto> map = new LinkedHashMap<String, SysDictTableDto>();
+
+		LambdaQueryWrapper<SysDictTable> query = new LambdaQueryWrapper<SysDictTable>();
+		query.orderByAsc(SysDictTable::getTableName);
+		List<SysDictTable> list = this.list(query);
+
+		if (list != null) {
+			for (SysDictTable b : list) {
+				SysDictTableDto nb = new SysDictTableDto();
+				BeanUtils.copyProperties(b, nb);
+				map.put(nb.getTableName(), nb);
+			}
+		}
+
+		return map;
 	}
 
 	/**

@@ -18,4 +18,5 @@ public class SysDictTableDto {
 	private Boolean used;
 	private Integer sort;
 	private String remark;
+	private Boolean existed;
 }

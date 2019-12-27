@@ -25,10 +25,12 @@ public class SysDictTableVo {
 	private String moduleCode;
 	@ApiModelProperty(value = "数据库连接id")
 	private String dbConnId;
-	@ApiModelProperty(value = "是否使用 1:使用 0:不使用")
+	@ApiModelProperty(value = "true:使用，false:不使用")
 	private Boolean used;
 	@ApiModelProperty(value = "序号")
 	private Integer sort;
 	@ApiModelProperty(value = "备注")
 	private String remark;
+	@ApiModelProperty(value = "true:已存在，false:不存在")
+	private Boolean existed;
 }

@@ -1,6 +1,7 @@
 package com.yunhesoft.tm4.dbdictionary.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,12 @@ public interface ISysDictTableService {
 	 * @return
 	 */
 	public List<SysDictTableDto> getSysDictTableByModuleId(String moduleId);
+
+	/**
+	 * 获取字典表名数据Map
+	 * @return
+	 */
+	public Map<String, SysDictTableDto> getSysDictTableNameMap();
 
 	/**
 	 * 添加表

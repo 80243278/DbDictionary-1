@@ -138,8 +138,8 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 			}
 			sql += " )";
 
-			ps = conn.prepareStatement(sql);
 			try {
+				ps = conn.prepareStatement(sql);
 				ps.execute();
 				flag = true;
 			} catch (Exception e) {
@@ -154,8 +154,8 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 						+ "', 'SCHEMA', N'dbo', 'TABLE', N'" + tbDoNew.getTableName() + "', 'COLUMN', N'"
 						+ colBean.getColumnName() + "';";
 			}
-			ps = conn.prepareStatement(sql);
 			try {
+				ps = conn.prepareStatement(sql);
 				ps.execute();
 				flag = true;
 			} catch (Exception e) {
@@ -177,8 +177,8 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 					j++;
 				}
 				sql += ")";
-				ps = conn.prepareStatement(sql);
 				try {
+					ps = conn.prepareStatement(sql);
 					ps.execute();
 					flag = true;
 				} catch (Exception e) {
@@ -228,8 +228,8 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 					keyList.add(colBean);
 				}
 			}
-			ps = conn.prepareStatement(sql);
 			try {
+				ps = conn.prepareStatement(sql);
 				ps.execute();
 				flag = true;
 			} catch (Exception e) {
@@ -244,8 +244,8 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 				try {
 					sql = "alter table " + tbDo.getTableName() + " alter column " + colBean.getColumnName() + " "
 							+ getColumnType(colBean) + " " + getIfNull(colBean) + ";";
-					ps = conn.prepareStatement(sql);
 					try {
+						ps = conn.prepareStatement(sql);
 						ps.execute();
 						flag = true;
 					} catch (Exception e) {
@@ -314,8 +314,8 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 						i++;
 					}
 					sql += ")";
-					ps = conn.prepareStatement(sql);
 					try {
+						ps = conn.prepareStatement(sql);
 						ps.execute();
 						flag = true;
 					} catch (Exception e) {
@@ -333,8 +333,8 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 							+ colBean.getColumnName() + "';";
 
 				}
-				ps = conn.prepareStatement(sql);
 				try {
+					ps = conn.prepareStatement(sql);
 					ps.execute();
 					flag = true;
 				} catch (Exception e) {
@@ -351,8 +351,8 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 							+ colBean.getColumnName() + "';";
 				}
 			}
-			ps = conn.prepareStatement(sql);
 			try {
+				ps = conn.prepareStatement(sql);
 				ps.execute();
 				flag = true;
 			} catch (Exception e) {
