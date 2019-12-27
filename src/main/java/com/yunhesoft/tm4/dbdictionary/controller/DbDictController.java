@@ -200,6 +200,52 @@ public class DbDictController {
 	}
 
 	@ResponseBody
+	@RequestMapping(value = "/saveCol", method = { RequestMethod.POST })
+	@ApiOperation(value = "保存添加表字段数据列表")
+	@ApiImplicitParam(name = "columnList", value = "表字段列表对象", required = true, paramType = "body", dataType = "List<SysDictColumnVo>")
+	public ResponseVo addCol(@RequestBody List<SysDictColumnVo> columnList) {
+		ResponseVo resp = ResponseVo.ok("保存表字段数据成功");
+
+		if (columnList == null || columnList.size() <= 0) {
+			resp = ResponseVo.error("没有需要保存的数据");
+		}
+
+		List<SysDictColumnDto> addDtoList = new ArrayList<SysDictColumnDto>();
+		List<SysDictColumnDto> delDtoList = new ArrayList<SysDictColumnDto>();
+		List<SysDictColumnDto> updDtoList = new ArrayList<SysDictColumnDto>();
+
+		for (SysDictColumnVo colVo : columnList) {
+			SysDictColumnDto dto = new SysDictColumnDto();
+			BeanUtils.copyProperties(colVo, dto);
+			dto.setSize(colVo.getColumnLength());
+			dto.setScale(colVo.getColumnDecimalPlace());
+			Integer flag = colVo.getFlag();
+			if (flag == null) {
+				continue;
+			}
+			// 添加
+			if (flag.intValue() == 1) {
+				addDtoList.add(dto);
+			}
+			// 修改
+			else if (flag.intValue() == 0) {
+				updDtoList.add(dto);
+			}
+			// 删除
+			else if (flag.intValue() == -1) {
+				delDtoList.add(dto);
+			}
+		}
+
+		boolean flag = columnService.saveSysDictColumn(addDtoList, delDtoList, updDtoList);
+		if (flag == false) {
+			resp = ResponseVo.error("保存表字段数据失败");
+		}
+
+		return resp;
+	}
+
+	@ResponseBody
 	@RequestMapping(value = "/getTree", method = { RequestMethod.POST })
 	@ApiOperation(value = "获取树形节点")
 	@ApiImplicitParam(name = "node", value = "父节点对象", required = true, paramType = "body", dataType = "SysTreeNodeVo")

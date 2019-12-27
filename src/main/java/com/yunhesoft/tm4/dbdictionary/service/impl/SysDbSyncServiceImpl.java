@@ -41,7 +41,7 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 
 		// 获取数据表的字段
 		Map<String, ColumnDo> colMap = mssqlUtils.getTableColumns(tableDto.getTableName());
-		
+
 		TableDo tbDo = tableMap.get(tableDto.getTableName());
 		// 新建表
 		if (tbDo == null) {
@@ -53,7 +53,6 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 			for (SysDictColumnDto colDto : colDtoList) {
 				ColumnDo colNewDo = new ColumnDo();
 				BeanUtils.copyProperties(colDto, colNewDo);
-				colNewDo.setIsKey(colDto.getPrimaryKey());
 				colDoNewList.add(colNewDo);
 			}
 			mssqlUtils.createTable(tbDoNew, colDoNewList);
@@ -69,7 +68,6 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 				if (colDo == null) {
 					ColumnDo colNewDo = new ColumnDo();
 					BeanUtils.copyProperties(colDto, colNewDo);
-					colNewDo.setIsKey(colDto.getPrimaryKey());
 					colDoNewList.add(colNewDo);
 				}
 				// 修改字段

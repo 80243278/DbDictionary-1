@@ -37,4 +37,6 @@ public class SysDictColumnVo {
 	private Integer columnLength;
 	@ApiModelProperty(value = "小数精度")
 	private Integer columnDecimalPlace;
+	@ApiModelProperty(value = "操作标识（1:添加，0:修改，-1:删除）")
+	private Integer flag;
 }

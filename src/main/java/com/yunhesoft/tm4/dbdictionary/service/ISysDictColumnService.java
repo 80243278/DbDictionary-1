@@ -48,4 +48,13 @@ public interface ISysDictColumnService {
 	 * @return
 	 */
 	public boolean delSysDictColumn(SysDictColumnDto colDto);
+	
+	/**
+	 * 保存表字段列表
+	 * @param addDtoList
+	 * @param delDtoList
+	 * @param updDtoList
+	 * @return
+	 */
+	public boolean saveSysDictColumn(List<SysDictColumnDto> addDtoList, List<SysDictColumnDto> delDtoList, List<SysDictColumnDto> updDtoList);
 }

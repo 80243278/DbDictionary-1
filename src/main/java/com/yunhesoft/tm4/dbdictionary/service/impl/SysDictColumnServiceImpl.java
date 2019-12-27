@@ -1,6 +1,7 @@
 package com.yunhesoft.tm4.dbdictionary.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
@@ -118,6 +119,50 @@ public class SysDictColumnServiceImpl extends ServiceImpl<SysDictColumnMapper, S
 			return false;
 		}
 		boolean flag = this.removeById(modDto.getTmuid());
+		return flag;
+	}
+
+	/**
+	 * 保存表字段列表
+	 * @param addDtoList
+	 * @param delDtoList
+	 * @param updDtoList
+	 * @return
+	 */
+	@Override
+	public boolean saveSysDictColumn(List<SysDictColumnDto> addDtoList, List<SysDictColumnDto> delDtoList,
+			List<SysDictColumnDto> updDtoList) {
+		boolean flag = true;
+
+		try {
+			// 删除
+			Collection<SysDictColumn> collectDel = new ArrayList<SysDictColumn>();
+			for (SysDictColumnDto colDto : delDtoList) {
+				SysDictColumn col = new SysDictColumn();
+				BeanUtils.copyProperties(colDto, col);
+				collectDel.add(col);
+			}
+			flag = this.removeByIds(collectDel);
+			// 添加
+			Collection<SysDictColumn> collectAdd = new ArrayList<SysDictColumn>();
+			for (SysDictColumnDto colDto : addDtoList) {
+				SysDictColumn col = new SysDictColumn();
+				BeanUtils.copyProperties(colDto, col);
+				collectAdd.add(col);
+			}
+			flag = this.saveBatch(collectAdd);
+			// 更新
+			Collection<SysDictColumn> collectUpd = new ArrayList<SysDictColumn>();
+			for (SysDictColumnDto colDto : updDtoList) {
+				SysDictColumn col = new SysDictColumn();
+				BeanUtils.copyProperties(colDto, col);
+				collectUpd.add(col);
+			}
+			flag = this.updateBatchById(collectUpd);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return flag;
 	}
 }
