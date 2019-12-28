@@ -137,12 +137,11 @@ public class SysDictColumnServiceImpl extends ServiceImpl<SysDictColumnMapper, S
 		try {
 			// 删除
 			if (delDtoList != null) {
-				Collection<SysDictColumn> collectDel = new ArrayList<SysDictColumn>();
 				List<String> tmuidList = new ArrayList<String>();
 				for (SysDictColumnDto colDto : delDtoList) {
 					tmuidList.add(colDto.getTmuid());
 				}
-				if (collectDel.size() > 0) {
+				if (tmuidList.size() > 0) {
 					flag = this.removeByIds(tmuidList);
 				}
 			}
