@@ -171,6 +171,7 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 	 * @param tableDtoList
 	 * @return
 	 */
+	@Override
 	public boolean syncDictByTables(SysModuleVo module, List<SysDictTableDto> tableDtoList) {
 		boolean flag = true;
 

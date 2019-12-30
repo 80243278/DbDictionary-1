@@ -57,6 +57,7 @@ public class SysDictTableServiceImpl extends ServiceImpl<SysDictTableMapper, Sys
 	 * @param tmuid
 	 * @return List<SysDictTableDto>
 	 */
+	@Override
 	public List<SysDictTableDto> getSysDictTableByName(String tableName) {
 		if (tableName == null || "".equals(tableName)) {
 			return null;
@@ -187,6 +188,7 @@ public class SysDictTableServiceImpl extends ServiceImpl<SysDictTableMapper, Sys
 	 * @param updDtoList
 	 * @return
 	 */
+	@Override
 	public boolean saveSysDictTableColumn(List<SysDictTableDto> addDtoList, List<SysDictTableDto> delDtoList,
 			List<SysDictTableDto> updDtoList) {
 		boolean flag = true;

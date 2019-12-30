@@ -24,8 +24,8 @@ public interface ISysDictTableService {
 
 	/**
 	 * 通过表名获取表数据
-	 * @param tmuid
-	 * @return List<SysDictTableDto>
+	 * @param tableName
+	 * @return
 	 */
 	public List<SysDictTableDto> getSysDictTableByName(String tableName);
 

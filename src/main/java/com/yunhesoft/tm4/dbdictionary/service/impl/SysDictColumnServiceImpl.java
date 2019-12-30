@@ -81,6 +81,7 @@ public class SysDictColumnServiceImpl extends ServiceImpl<SysDictColumnMapper, S
 	 * @param tableName
 	 * @return
 	 */
+	@Override
 	public List<SysDictColumnDto> getSysDictColumnByTableName(String tableName) {
 		if (tableName == null || "".equals(tableName)) {
 			return null;
