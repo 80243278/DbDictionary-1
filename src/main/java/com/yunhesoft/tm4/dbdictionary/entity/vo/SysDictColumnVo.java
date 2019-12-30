@@ -21,6 +21,8 @@ public class SysDictColumnVo {
 	private String columnShowName;
 	@ApiModelProperty(value = "数据库表字典表id")
 	private String tableId;
+	@ApiModelProperty(value = "数据库表别名")
+	private String tableName;
 	@ApiModelProperty(value = "数据类型")
 	private String dataType;
 	@ApiModelProperty(value = "是否为非空字段 1:非空 0:可以为空")

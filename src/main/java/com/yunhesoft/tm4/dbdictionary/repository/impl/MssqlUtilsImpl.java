@@ -148,20 +148,8 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 			}
 
 			// 添加字段说明
-			sql = "";
-			for (ColumnDo colBean : colDoNewList) {
-				sql += "EXEC sp_addextendedproperty 'MS_Description', N'" + colBean.getRemark()
-						+ "', 'SCHEMA', N'dbo', 'TABLE', N'" + tbDoNew.getTableName() + "', 'COLUMN', N'"
-						+ colBean.getColumnName() + "';";
-			}
-			try {
-				ps = conn.prepareStatement(sql);
-				ps.execute();
-				flag = true;
-			} catch (Exception e) {
-				e.printStackTrace();
-				return false;
-			}
+			// 添加字段说明
+			flag = addColDesc(conn, tbDoNew, colDoNewList);
 
 			// 添加主键
 			if (keyList.size() > 0) {
@@ -209,10 +197,7 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 			Connection conn = dataSource.getConnection();
 			PreparedStatement ps = null;
 			List<ColumnDo> keyList = new ArrayList<ColumnDo>();
-			List<ColumnDo> newKeyList = new ArrayList<ColumnDo>();
-
 			String sql = "";
-
 			// 新增字段
 			sql = "";
 			for (ColumnDo colBean : colDoNewList) {
@@ -236,7 +221,6 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 				e.printStackTrace();
 				return false;
 			}
-
 			// 修改字段类型
 			sql = "";
 			for (ColumnDo colBean : colDoAlterList) {
@@ -264,75 +248,81 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 					e.printStackTrace();
 				}
 			}
-
-			// 检查并修改主键
-			boolean ifUpdKey = false;
-			String pkName = "";
-			sql = "";
-			for (ColumnDo colBean : keyList) {
-				// 原为主键列
-				if (colBean.getPkName() != null && !"".equals(colBean.getPkName())) {
-					pkName = colBean.getPkName();
-					// 已取消主键
-					if (colBean.getPrimaryKey() == false) {
-						ifUpdKey = true;
-					}
-				}
-				// 原为非主键列
-				else {
-					// 新主键
-					if (colBean.getPrimaryKey() == true) {
-						ifUpdKey = true;
-						newKeyList.add(colBean);
-					}
-				}
-			}
-			// 需要更新主键
-			if (ifUpdKey == true) {
-				// 删除原主键约束
-				sql = "";
-				sql += "alter table" + tbDo.getTableName() + "drop constraint" + pkName;
-				ps = conn.prepareStatement(sql);
-				try {
-					ps.execute();
-					flag = true;
-				} catch (Exception e) {
-					e.printStackTrace();
-					return false;
-				}
-				// 创建新主键约束
-				if (newKeyList.size() > 0) {
-					sql = "";
-					sql += "alter table " + tbDo.getTableName() + " add constraint PK_" + tbDo.getTableName()
-							+ " primary key(";
-					int i = 0;
-					for (ColumnDo key : newKeyList) {
-						if (i > 0) {
-							sql += ",";
-						}
-						sql += key.getColumnName();
-						i++;
-					}
-					sql += ")";
-					try {
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						flag = true;
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-
+			// 检查并更新主键
+			flag = updatePk(conn, tbDo, keyList);
 			// 添加字段说明
-			sql = "";
-			if (colDoNewList.size() > 0) {
-				for (ColumnDo colBean : colDoNewList) {
-					sql += "EXEC sp_addextendedproperty 'MS_Description', N'" + colBean.getRemark()
-							+ "', 'SCHEMA', N'dbo', 'TABLE', N'" + tbDo.getTableName() + "', 'COLUMN', N'"
-							+ colBean.getColumnName() + "';";
+			flag = addColDesc(conn, tbDo, colDoNewList);
+			// 修改字段说明
+			flag = alterColDesc(conn, tbDo, colDoAlterList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
+		return flag;
+	}
+
+	/**
+	 * 删除旧主键，添加新主键（更新表主键）
+	 * @param conn
+	 * @param tbDo
+	 * @param pkName
+	 * @param newKeyList
+	 * @return
+	 */
+	private boolean updatePk(Connection conn, TableDo tbDo, List<ColumnDo> keyList) {
+		boolean flag = true;
+		PreparedStatement ps = null;
+
+		boolean ifUpdKey = false;
+		String pkName = "";
+		String sql = "";
+		List<ColumnDo> newKeyList = new ArrayList<ColumnDo>();
+
+		for (ColumnDo colBean : keyList) {
+			// 原为主键列
+			if (colBean.getPkName() != null && !"".equals(colBean.getPkName())) {
+				pkName = colBean.getPkName();
+				// 已取消主键
+				if (colBean.getPrimaryKey() == false) {
+					ifUpdKey = true;
 				}
+			}
+			// 原为非主键列
+			else {
+				// 新主键
+				if (colBean.getPrimaryKey() == true) {
+					ifUpdKey = true;
+					newKeyList.add(colBean);
+				}
+			}
+		}
+
+		if (ifUpdKey == true) {
+			// 删除原主键约束
+			sql = "";
+			sql += "alter table" + tbDo.getTableName() + "drop constraint" + pkName;
+			try {
+				ps = conn.prepareStatement(sql);
+				ps.execute();
+				flag = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+			// 创建新主键约束
+			if (newKeyList.size() > 0) {
+				sql = "";
+				sql += "alter table " + tbDo.getTableName() + " add constraint PK_" + tbDo.getTableName()
+						+ " primary key(";
+				int i = 0;
+				for (ColumnDo key : newKeyList) {
+					if (i > 0) {
+						sql += ",";
+					}
+					sql += key.getColumnName();
+					i++;
+				}
+				sql += ")";
 				try {
 					ps = conn.prepareStatement(sql);
 					ps.execute();
@@ -341,23 +331,64 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 					e.printStackTrace();
 				}
 			}
+		}
 
-			// 修改字段说明
-			sql = "";
-			if (colDoNewList.size() > 0) {
-				for (ColumnDo colBean : colDoNewList) {
-					sql += "EXEC sp_updateextendedproperty 'MS_Description', N'" + colBean.getRemark()
-							+ "', 'SCHEMA', N'dbo', 'TABLE', N'" + tbDo.getTableName() + "', 'COLUMN', N'"
-							+ colBean.getColumnName() + "';";
-				}
+		return flag;
+	}
+
+	/**
+	 * 添加字段描述
+	 * @param conn
+	 * @param tbDo
+	 * @param colDoNewList
+	 * @return
+	 */
+	private boolean addColDesc(Connection conn, TableDo tbDo, List<ColumnDo> colDoNewList) {
+		boolean flag = true;
+
+		String sql = "";
+		if (colDoNewList.size() > 0) {
+			for (ColumnDo colBean : colDoNewList) {
+				sql += "EXEC sp_addextendedproperty 'MS_Description', N'" + colBean.getRemark()
+						+ "', 'SCHEMA', N'dbo', 'TABLE', N'" + tbDo.getTableName() + "', 'COLUMN', N'"
+						+ colBean.getColumnName() + "';";
+
 			}
 			try {
-				ps = conn.prepareStatement(sql);
+				PreparedStatement ps = conn.prepareStatement(sql);
 				ps.execute();
 				flag = true;
 			} catch (Exception e) {
 				e.printStackTrace();
+				flag = false;
 			}
+		}
+
+		return flag;
+	}
+
+	/**
+	 * 修改字段描述
+	 * @param conn
+	 * @param tbDo
+	 * @param colDoAlterList
+	 * @return
+	 */
+	private boolean alterColDesc(Connection conn, TableDo tbDo, List<ColumnDo> colDoAlterList) {
+		boolean flag = true;
+
+		String sql = "";
+		if (colDoAlterList.size() > 0) {
+			for (ColumnDo colBean : colDoAlterList) {
+				sql += "EXEC sp_updateextendedproperty 'MS_Description', N'" + colBean.getRemark()
+						+ "', 'SCHEMA', N'dbo', 'TABLE', N'" + tbDo.getTableName() + "', 'COLUMN', N'"
+						+ colBean.getColumnName() + "';";
+			}
+		}
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.execute();
+			flag = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

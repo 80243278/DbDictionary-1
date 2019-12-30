@@ -13,6 +13,7 @@ public class SysDictColumnDto {
 	private String columnName;
 	private String columnShowName;
 	private String tableId;
+	private String tableName;
 	private String dataType;
 	private Boolean notNull;
 	private Boolean primaryKey;

@@ -38,6 +38,8 @@ public class SysDictColumn implements Serializable {
 	@Column(length = 50)
 	private String tableId;
 	@Column(length = 50)
+	private String tableName;
+	@Column(length = 50)
 	private String dataType;
 	private Boolean notNull;
 	private Boolean primaryKey;

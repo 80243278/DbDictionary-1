@@ -9,10 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ColumnDo {
-	private String tableName;
 	private String columnName;
 	private String columnShowName;
 	private String tableId;
+	private String tableName;
 	private String dataType;
 	private Boolean notNull;
 	private Boolean primaryKey;

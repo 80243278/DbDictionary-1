@@ -1,6 +1,7 @@
 package com.yunhesoft.tm4.dbdictionary.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,32 @@ public class SysDictTableServiceImpl extends ServiceImpl<SysDictTableMapper, Sys
 		}
 		LambdaQueryWrapper<SysDictTable> query = new LambdaQueryWrapper<SysDictTable>();
 		query.eq(SysDictTable::getTmuid, tmuid);
+		query.orderByAsc(SysDictTable::getSort);
+		List<SysDictTable> list = this.list(query);
+		List<SysDictTableDto> newList = new ArrayList<SysDictTableDto>();
+
+		if (list != null) {
+			for (SysDictTable b : list) {
+				SysDictTableDto nb = new SysDictTableDto();
+				BeanUtils.copyProperties(b, nb);
+				newList.add(nb);
+			}
+		}
+
+		return newList;
+	}
+
+	/**
+	 * 通过表名获取表数据
+	 * @param tmuid
+	 * @return List<SysDictTableDto>
+	 */
+	public List<SysDictTableDto> getSysDictTableByName(String tableName) {
+		if (tableName == null || "".equals(tableName)) {
+			return null;
+		}
+		LambdaQueryWrapper<SysDictTable> query = new LambdaQueryWrapper<SysDictTable>();
+		query.eq(SysDictTable::getTableName, tableName);
 		query.orderByAsc(SysDictTable::getSort);
 		List<SysDictTable> list = this.list(query);
 		List<SysDictTableDto> newList = new ArrayList<SysDictTableDto>();
@@ -150,6 +177,59 @@ public class SysDictTableServiceImpl extends ServiceImpl<SysDictTableMapper, Sys
 			return false;
 		}
 		boolean flag = this.removeById(modDto.getTmuid());
+		return flag;
+	}
+
+	/**
+	 * 保存表列表
+	 * @param addDtoList
+	 * @param delDtoList
+	 * @param updDtoList
+	 * @return
+	 */
+	public boolean saveSysDictTableColumn(List<SysDictTableDto> addDtoList, List<SysDictTableDto> delDtoList,
+			List<SysDictTableDto> updDtoList) {
+		boolean flag = true;
+
+		try {
+			// 删除
+			if (delDtoList != null) {
+				List<String> tmuidList = new ArrayList<String>();
+				for (SysDictTableDto colDto : delDtoList) {
+					tmuidList.add(colDto.getTmuid());
+				}
+				if (tmuidList.size() > 0) {
+					flag = this.removeByIds(tmuidList);
+				}
+			}
+			// 添加
+			if (addDtoList != null) {
+				Collection<SysDictTable> collectAdd = new ArrayList<SysDictTable>();
+				for (SysDictTableDto colDto : addDtoList) {
+					SysDictTable col = new SysDictTable();
+					BeanUtils.copyProperties(colDto, col);
+					collectAdd.add(col);
+				}
+				if (collectAdd.size() > 0) {
+					flag = this.saveBatch(collectAdd);
+				}
+			}
+			// 更新
+			if (updDtoList != null) {
+				Collection<SysDictTable> collectUpd = new ArrayList<SysDictTable>();
+				for (SysDictTableDto colDto : updDtoList) {
+					SysDictTable col = new SysDictTable();
+					BeanUtils.copyProperties(colDto, col);
+					collectUpd.add(col);
+				}
+				if (collectUpd.size() > 0) {
+					flag = this.updateBatchById(collectUpd);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return flag;
 	}
 }

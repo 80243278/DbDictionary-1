@@ -18,6 +18,7 @@ import com.yunhesoft.tm4.dbdictionary.entity.dto.SysDictTableDto;
 import com.yunhesoft.tm4.dbdictionary.entity.dto.SysModuleDto;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.ResponseVo;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.SysDictColumnVo;
+import com.yunhesoft.tm4.dbdictionary.entity.vo.SysDictModuleTableVo;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.SysDictTableColumnVo;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.SysDictTableVo;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.SysModuleVo;
@@ -203,7 +204,7 @@ public class DbDictController {
 	@RequestMapping(value = "/saveCol", method = { RequestMethod.POST })
 	@ApiOperation(value = "保存添加表字段数据列表")
 	@ApiImplicitParam(name = "columnList", value = "表字段列表对象", required = true, paramType = "body", dataType = "List<SysDictColumnVo>")
-	public ResponseVo addCol(@RequestBody List<SysDictColumnVo> columnList) {
+	public ResponseVo saveCol(@RequestBody List<SysDictColumnVo> columnList) {
 		ResponseVo resp = ResponseVo.ok("保存表字段数据成功");
 
 		if (columnList == null || columnList.size() <= 0) {
@@ -400,7 +401,7 @@ public class DbDictController {
 
 	@ResponseBody
 	@RequestMapping(value = "/getSyncTables", method = { RequestMethod.POST })
-	@ApiOperation(value = "获取当前库所有表")
+	@ApiOperation(value = "获取所有数据库表")
 	/**@ApiImplicitParam(name = "table", value = "表", required = true, paramType = "body", dataType = "SysDictTableVo")*/
 	public List<SysDictTableVo> getSyncTables() {
 		List<SysDictTableVo> tbVoList = new ArrayList<SysDictTableVo>();
@@ -419,12 +420,30 @@ public class DbDictController {
 
 	@ResponseBody
 	@RequestMapping(value = "/syncDictByTables", method = { RequestMethod.POST })
-	@ApiOperation(value = "反向同步（数据库 → 字典）")
-	@ApiImplicitParam(name = "table", value = "表", required = true, paramType = "body", dataType = "SysDictTableVo")
-	public ResponseVo syncDictByTables(@RequestBody SysDictTableVo table) {
+	@ApiOperation(value = "反向同步指定数据库表（数据库 → 字典）")
+	@ApiImplicitParam(name = "tables", value = "数据库表列表", required = true, paramType = "body", dataType = "List<SysDictTableVo>")
+	public ResponseVo syncDictByTables(@RequestBody SysDictModuleTableVo moduleTableVo/*List<SysDictTableVo> tables*/) {
 		ResponseVo resp = ResponseVo.ok("同步成功");
 
-		// TODO
+		if (moduleTableVo == null) {
+			resp = ResponseVo.error("同步失败");
+			return resp;
+		}
+
+		List<SysDictTableDto> dtoList = new ArrayList<SysDictTableDto>();
+
+		List<SysDictTableVo> tables = moduleTableVo.getTableVoList();
+		for (SysDictTableVo tbVo : tables) {
+			SysDictTableDto dto = new SysDictTableDto();
+			BeanUtils.copyProperties(tbVo, dto);
+			dtoList.add(dto);
+		}
+
+		SysModuleVo module = moduleTableVo.getModuleVo();
+		boolean flag = syncService.syncDictByTables(module, dtoList);
+		if (flag == false) {
+			resp = ResponseVo.error("同步失败");
+		}
 
 		return resp;
 	}

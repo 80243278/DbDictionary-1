@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.yunhesoft.tm4.dbdictionary.entity.dto.SysDictColumnDto;
 import com.yunhesoft.tm4.dbdictionary.entity.dto.SysDictTableDto;
+import com.yunhesoft.tm4.dbdictionary.entity.vo.SysModuleVo;
 
 /**
  * 数据库结构同步接口
@@ -33,4 +34,12 @@ public interface ISysDbSyncService {
 	 * @return
 	 */
 	public List<SysDictTableDto> getSyncTables();
+
+	/**
+	 * 反向同步指定数据库表（数据库 → 字典）
+	 * @param module
+	 * @param tableDtoList
+	 * @return
+	 */
+	public boolean syncDictByTables(SysModuleVo module, List<SysDictTableDto> tableDtoList);
 }

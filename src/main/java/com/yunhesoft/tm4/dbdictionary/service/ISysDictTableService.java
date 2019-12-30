@@ -23,6 +23,13 @@ public interface ISysDictTableService {
 	public List<SysDictTableDto> getSysDictTableById(String tmuid);
 
 	/**
+	 * 通过表名获取表数据
+	 * @param tmuid
+	 * @return List<SysDictTableDto>
+	 */
+	public List<SysDictTableDto> getSysDictTableByName(String tableName);
+
+	/**
 	 * 通过模块id获取数据库表数据
 	 * @param moduleId
 	 * @return
@@ -55,4 +62,14 @@ public interface ISysDictTableService {
 	 * @return
 	 */
 	public boolean delSysDictTable(SysDictTableDto tableDto);
+
+	/**
+	 * 保存表列表
+	 * @param addDtoList
+	 * @param delDtoList
+	 * @param updDtoList
+	 * @return
+	 */
+	public boolean saveSysDictTableColumn(List<SysDictTableDto> addDtoList, List<SysDictTableDto> delDtoList,
+			List<SysDictTableDto> updDtoList);
 }

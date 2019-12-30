@@ -77,6 +77,32 @@ public class SysDictColumnServiceImpl extends ServiceImpl<SysDictColumnMapper, S
 	}
 
 	/**
+	 * 通过表名获取字段数据列表
+	 * @param tableName
+	 * @return
+	 */
+	public List<SysDictColumnDto> getSysDictColumnByTableName(String tableName) {
+		if (tableName == null || "".equals(tableName)) {
+			return null;
+		}
+		LambdaQueryWrapper<SysDictColumn> query = new LambdaQueryWrapper<SysDictColumn>();
+		query.eq(SysDictColumn::getTableName, tableName);
+		query.orderByAsc(SysDictColumn::getSort);
+		List<SysDictColumn> list = this.list(query);
+		List<SysDictColumnDto> newList = new ArrayList<SysDictColumnDto>();
+
+		if (list != null) {
+			for (SysDictColumn b : list) {
+				SysDictColumnDto nb = new SysDictColumnDto();
+				BeanUtils.copyProperties(b, nb);
+				newList.add(nb);
+			}
+		}
+
+		return newList;
+	}
+
+	/**
 	 * @category 添加表数据
 	 * @param modDto
 	 * @return
