@@ -37,10 +37,12 @@ public interface IMssqlUtils {
 
 	/**
 	 * 修改表
-	 * @param tbDo
-	 * @param colDoNewList
-	 * @param colDoAlterList
+	 * @param tbDo 数据表
+	 * @param colDoNewList 新字段列表
+	 * @param colDoAlterList 修改字段列表
+	 * @param colDoDelList 删除字段列表
 	 * @return
 	 */
-	public boolean alterTable(TableDo tbDo, List<ColumnDo> colDoNewList, List<ColumnDo> colDoAlterList);
+	public boolean alterTable(TableDo tbDo, List<ColumnDo> colDoNewList, List<ColumnDo> colDoAlterList,
+			List<ColumnDo> colDoDelList);
 }

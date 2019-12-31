@@ -22,4 +22,5 @@ public class ColumnDo {
 	private Integer size;
 	private Integer scale;
 	private String pkName;
+	private Boolean existed;
 }

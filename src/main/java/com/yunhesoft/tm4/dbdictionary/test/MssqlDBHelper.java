@@ -16,14 +16,14 @@ import com.yunhesoft.tm4.dbdictionary.entity.domain.TableDo;
  * 包括得到所有表及字段、得到与数据库连接
  * @author zhang.jt
  */
-public class MssqlDBHelper {
-	public final static String EN = " ";
-	public final static String DS = ",";
-	public final static String LS = "(";
-	public final static String RS = ")";
-	public final static String LM = "[";
-	public final static String RM = "]";
-	public final static String NL = "\r\n";
+public class MssqlDbHelper {
+	public final static String E_N = " ";
+	public final static String D_S = ",";
+	public final static String L_S = "(";
+	public final static String R_S = ")";
+	public final static String L_M = "[";
+	public final static String R_M = "]";
+	public final static String N_L = "\r\n";
 
 	/**
 	 * 列集全的表名
@@ -95,16 +95,17 @@ public class MssqlDBHelper {
 			conn = ConnectionHelper.getCon(config);
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
-			while (rs.next()) {
-				/*String id = rs.getString("id");
+			/**while (rs.next()) {
+				String id = rs.getString("id");
 				String packName = rs.getString("packName");
 				String tableName = rs.getString("tableName");
 				String tableNameCh = rs.getString("tableNameCh");
-				String description = rs.getString("description");*/
+				String description = rs.getString("description");
 				// 从数据库读取出来的表名全改为小写
 				// tables.put(tableName, new TableDo(id, packName, tableName, tableNameCh,
 				// description));
-			}
+				 
+			}*/
 		} finally {
 			ConnectionHelper.closeCon(conn);
 		}
@@ -226,13 +227,13 @@ public class MssqlDBHelper {
 		try {
 			conn = ConnectionHelper.getCon(config);
 			StringBuffer sql = new StringBuffer();
-			sql.append("create table ").append(table.getTableName()).append(LS);
+			sql.append("create table ").append(table.getTableName()).append(L_S);
 			// int index = 0;
 			/**for (String key : table.getColumns().keySet()) {
 				Column c = table.getColumns().get(key);
 				sql.append(getCommonColumnSql(c));
 				if (index < table.getColumns().size() - 1) {
-					sql.append(DS);// 加上,
+					sql.append(D_S);// 加上,
 				}
 				index++;
 				// 添加到SSHCOLUMNS表中
@@ -241,7 +242,7 @@ public class MssqlDBHelper {
 						+ c.getForeignKey() + "','" + c.getDesc() + "'," + c.getFiledLength() + ")";
 				ConnectionHelper.execSql(inSql, conn);
 			}*/
-			sql.append(RS);
+			sql.append(R_S);
 			// 执行sql
 			ConnectionHelper.execSql(sql.toString(), conn);
 
@@ -372,16 +373,16 @@ public class MssqlDBHelper {
 		}
 		StringBuffer sql = new StringBuffer();
 		// 字段名+类型
-		sql.append(LM + c.getFiledName() + RM).append(EN).append(c.getFiledType());
+		sql.append(L_M + c.getFiledName() + R_M).append(E_N).append(c.getFiledType());
 		// 有长度
 		if (c.isHasLength()) {
 			// 有精度
 			if (c.isHasPrecision()) {
-				sql.append(LS).append(c.getFiledLength()).append(DS).append(c.getPrecision()).append(RS);
+				sql.append(L_S).append(c.getFiledLength()).append(D_S).append(c.getPrecision()).append(R_S);
 			}
 			// 无精度
 			else {
-				sql.append(LS).append(c.getFiledLength()).append(RS);
+				sql.append(L_S).append(c.getFiledLength()).append(R_S);
 			}
 		}
 		// id主键

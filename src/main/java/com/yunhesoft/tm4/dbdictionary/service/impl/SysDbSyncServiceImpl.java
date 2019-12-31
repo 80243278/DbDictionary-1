@@ -83,10 +83,21 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 					BeanUtils.copyProperties(colDo, colAlterDo);
 					BeanUtils.copyProperties(colDto, colAlterDo);
 					colDoAlterList.add(colAlterDo);
+					// 更新标识
+					colDo.setExisted(true);
+				}
+			}
+			// 制作删除字段列表
+			List<ColumnDo> colDoDelList = new ArrayList<ColumnDo>();
+			List<String> delMapKeys = new ArrayList<String>(colMap.keySet());
+			for (String colName : delMapKeys) {
+				ColumnDo colDo = colMap.get(colName);
+				if (colDo.getExisted() == null || colDo.getExisted() == false) {
+					colDoDelList.add(colDo);
 				}
 			}
 
-			mssqlUtils.alterTable(tbDo, colDoNewList, colDoAlterList);
+			mssqlUtils.alterTable(tbDo, colDoNewList, colDoAlterList, colDoDelList);
 		}
 
 		return flag;
@@ -210,7 +221,9 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 			newTableDto.setUsed(true);
 			newTableDto.setTmuid(ToolUtils.getUuid());
 			// 使用旧表数据覆盖，保留原有备注信息
-			newTableDto.setRemark(oldTableDto.getRemark());
+			if (oldTableDto != null) {
+				newTableDto.setRemark(oldTableDto.getRemark());
+			}
 
 			List<SysDictTableDto> addTableDtoList = new ArrayList<SysDictTableDto>();
 			addTableDtoList.add(newTableDto);

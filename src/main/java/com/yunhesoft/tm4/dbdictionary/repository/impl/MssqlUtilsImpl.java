@@ -189,7 +189,8 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 	 * @return
 	 */
 	@Override
-	public boolean alterTable(TableDo tbDo, List<ColumnDo> colDoNewList, List<ColumnDo> colDoAlterList) {
+	public boolean alterTable(TableDo tbDo, List<ColumnDo> colDoNewList, List<ColumnDo> colDoAlterList,
+			List<ColumnDo> colDoDelList) {
 		boolean flag = true;
 
 		try {
@@ -198,6 +199,7 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 			PreparedStatement ps = null;
 			List<ColumnDo> keyList = new ArrayList<ColumnDo>();
 			String sql = "";
+
 			// 新增字段
 			sql = "";
 			for (ColumnDo colBean : colDoNewList) {
@@ -250,12 +252,46 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 			}
 			// 检查并更新主键
 			flag = updatePk(conn, tbDo, keyList);
+			// 删除字段
+			flag = delCol(conn, tbDo, colDoDelList);
 			// 添加字段说明
 			flag = addColDesc(conn, tbDo, colDoNewList);
 			// 修改字段说明
 			flag = alterColDesc(conn, tbDo, colDoAlterList);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+
+		return flag;
+	}
+
+	/**
+	 * 删除字段
+	 * @param conn
+	 * @param tbDo
+	 * @param colDoDelList
+	 * @return
+	 */
+	private boolean delCol(Connection conn, TableDo tbDo, List<ColumnDo> colDoDelList) {
+		boolean flag = true;
+		PreparedStatement ps = null;
+
+		String sql = "";
+		for (ColumnDo colBean : colDoDelList) {
+			// 删除可能会失败，单个执行
+			try {
+				sql = "alter table " + tbDo.getTableName() + " drop column " + colBean.getColumnName();
+				try {
+					ps = conn.prepareStatement(sql);
+					ps.execute();
+					flag = true;
+				} catch (Exception e) {
+					e.printStackTrace();
+					continue;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		return flag;
@@ -290,7 +326,7 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 			// 原为非主键列
 			else {
 				// 新主键
-				if (colBean.getPrimaryKey() == true) {
+				if (colBean.getPrimaryKey().booleanValue() == true) {
 					ifUpdKey = true;
 					newKeyList.add(colBean);
 				}
@@ -300,7 +336,7 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 		if (ifUpdKey == true) {
 			// 删除原主键约束
 			sql = "";
-			sql += "alter table" + tbDo.getTableName() + "drop constraint" + pkName;
+			sql += "alter table " + tbDo.getTableName() + " drop constraint " + pkName;
 			try {
 				ps = conn.prepareStatement(sql);
 				ps.execute();

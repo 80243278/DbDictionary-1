@@ -36,7 +36,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * @author zhang.jt
  */
-@Api(tags = "数据字典控制器")
+@Api(tags = "数据库字典控制器")
 @Controller
 @RequestMapping("/dict")
 public class DbDictController {
@@ -355,7 +355,7 @@ public class DbDictController {
 
 	@ResponseBody
 	@RequestMapping(value = "/syncDb", method = { RequestMethod.POST })
-	@ApiOperation(value = "正向同步（字典 → 数据库）")
+	@ApiOperation(value = "单表正向同步（字典 → 数据库）")
 	@ApiImplicitParam(name = "tableAndCol", value = "表与列", required = true, paramType = "body", dataType = "SysDictTableColumnVo")
 	public ResponseVo syncDictToDb(@RequestBody SysDictTableColumnVo tableAndCol) {
 		ResponseVo resp = ResponseVo.ok("同步成功");
@@ -386,7 +386,7 @@ public class DbDictController {
 
 	@ResponseBody
 	@RequestMapping(value = "/syncDict", method = { RequestMethod.POST })
-	@ApiOperation(value = "反向同步（数据库 → 字典）")
+	@ApiOperation(value = "单表反向同步（数据库 → 字典）")
 	@ApiImplicitParam(name = "table", value = "表", required = true, paramType = "body", dataType = "SysDictTableVo")
 	public ResponseVo syncDbToDict(@RequestBody SysDictTableVo table) {
 		ResponseVo resp = ResponseVo.ok("同步成功");
@@ -420,7 +420,7 @@ public class DbDictController {
 
 	@ResponseBody
 	@RequestMapping(value = "/syncDictByTables", method = { RequestMethod.POST })
-	@ApiOperation(value = "反向同步指定数据库表（数据库 → 字典）")
+	@ApiOperation(value = "多表反向同步（数据库 → 字典）")
 	@ApiImplicitParam(name = "tables", value = "数据库表列表", required = true, paramType = "body", dataType = "List<SysDictTableVo>")
 	public ResponseVo syncDictByTables(@RequestBody SysDictModuleTableVo moduleTableVo/*List<SysDictTableVo> tables*/) {
 		ResponseVo resp = ResponseVo.ok("同步成功");
