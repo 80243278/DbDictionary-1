@@ -80,8 +80,9 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 				// 修改字段
 				else {
 					ColumnDo colAlterDo = new ColumnDo();
-					BeanUtils.copyProperties(colDo, colAlterDo);
+					// BeanUtils.copyProperties(colDo, colAlterDo);
 					BeanUtils.copyProperties(colDto, colAlterDo);
+					colAlterDo.setPkName(colDo.getPkName());
 					colDoAlterList.add(colAlterDo);
 					// 更新标识
 					colDo.setExisted(true);

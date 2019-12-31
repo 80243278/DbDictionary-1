@@ -28,6 +28,7 @@ import com.yunhesoft.tm4.dbdictionary.service.ISysDbSyncService;
 import com.yunhesoft.tm4.dbdictionary.service.ISysDictColumnService;
 import com.yunhesoft.tm4.dbdictionary.service.ISysDictTableService;
 import com.yunhesoft.tm4.dbdictionary.service.ISysModuleService;
+import com.yunhesoft.tm4.dbdictionary.utils.ToolUtils;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -266,8 +267,30 @@ public class DbDictController {
 		// 查表连接数据
 		if (type.equals(typeRoot)) {
 			List<SysDbConnDto> dtoList = connService.getSysDbConn();
-			if (dtoList != null) {
+			if (dtoList != null && dtoList.size() > 0) {
 				for (SysDbConnDto connDto : dtoList) {
+					SysTreeNodeVo nodeVo = new SysTreeNodeVo();
+					nodeVo.setNodeId(connDto.getTmuid());
+					nodeVo.setDataId(connDto.getTmuid());
+					nodeVo.setIsLeaf(false);
+					nodeVo.setType(typeDb);
+					nodeVo.setLabel(connDto.getDbShowName());
+					nodeVo.setObj(connDto);
+					nodeVoList.add(nodeVo);
+				}
+			} else {
+				// 初始化当前数据库连接节点
+				SysDbConnDto connDto = new SysDbConnDto();
+				connDto.setTmuid(ToolUtils.getUuid());
+				connDto.setDbName("当前数据库");
+				connDto.setDbShowName("当前数据库");
+				connDto.setRemark("当前数据库");
+				connDto.setSort(1);
+				connDto.setUsed(true);
+				List<SysDbConnDto> connDtoList = new ArrayList<SysDbConnDto>();
+				connDtoList.add(connDto);
+				boolean flag = connService.saveSysDbConn(connDtoList, null, null);
+				if (flag == true) {
 					SysTreeNodeVo nodeVo = new SysTreeNodeVo();
 					nodeVo.setNodeId(connDto.getTmuid());
 					nodeVo.setDataId(connDto.getTmuid());

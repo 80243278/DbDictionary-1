@@ -1,6 +1,7 @@
 package com.yunhesoft.tm4.dbdictionary.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
@@ -40,5 +41,59 @@ public class SysDbConnServiceImpl extends ServiceImpl<SysDbConnMapper, SysDbConn
 		}
 
 		return dtoList;
+	}
+	
+	/**
+	 * 保存数据库链接
+	 * @param addDtoList
+	 * @param delDtoList
+	 * @param updDtoList
+	 * @return
+	 */
+	@Override
+	public boolean saveSysDbConn(List<SysDbConnDto> addDtoList, List<SysDbConnDto> delDtoList,
+			List<SysDbConnDto> updDtoList) {
+		boolean flag = true;
+
+		try {
+			// 删除
+			if (delDtoList != null) {
+				List<String> tmuidList = new ArrayList<String>();
+				for (SysDbConnDto colDto : delDtoList) {
+					tmuidList.add(colDto.getTmuid());
+				}
+				if (tmuidList.size() > 0) {
+					flag = this.removeByIds(tmuidList);
+				}
+			}
+			// 添加
+			if (addDtoList != null) {
+				Collection<SysDbConn> collectAdd = new ArrayList<SysDbConn>();
+				for (SysDbConnDto colDto : addDtoList) {
+					SysDbConn col = new SysDbConn();
+					BeanUtils.copyProperties(colDto, col);
+					collectAdd.add(col);
+				}
+				if (collectAdd.size() > 0) {
+					flag = this.saveBatch(collectAdd);
+				}
+			}
+			// 更新
+			if (updDtoList != null) {
+				Collection<SysDbConn> collectUpd = new ArrayList<SysDbConn>();
+				for (SysDbConnDto colDto : updDtoList) {
+					SysDbConn col = new SysDbConn();
+					BeanUtils.copyProperties(colDto, col);
+					collectUpd.add(col);
+				}
+				if (collectUpd.size() > 0) {
+					flag = this.updateBatchById(collectUpd);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return flag;
 	}
 }

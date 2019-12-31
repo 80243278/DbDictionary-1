@@ -19,4 +19,14 @@ public interface ISysDbConnService {
 	 * @return List<SysDbConnDto>
 	 */
 	public List<SysDbConnDto> getSysDbConn();
+
+	/**
+	 * 保存数据库链接
+	 * @param addDtoList
+	 * @param delDtoList
+	 * @param updDtoList
+	 * @return
+	 */
+	public boolean saveSysDbConn(List<SysDbConnDto> addDtoList, List<SysDbConnDto> delDtoList,
+			List<SysDbConnDto> updDtoList);
 }

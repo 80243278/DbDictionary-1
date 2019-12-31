@@ -243,7 +243,8 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 					if (colBean.getPkName() != null && !"".equals(colBean.getPkName())) {
 						ifOldPk = true;
 					}
-					if (colBean.getPrimaryKey().booleanValue() || ifOldPk == true) {
+					if ((colBean.getPrimaryKey() != null && colBean.getPrimaryKey().booleanValue())
+							|| ifOldPk == true) {
 						keyList.add(colBean);
 					}
 				} catch (Exception e) {
@@ -251,7 +252,7 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 				}
 			}
 			// 检查并更新主键
-			flag = updatePk(conn, tbDo, keyList);
+			flag = updatePk(conn, tbDo, keyList, colDoDelList);
 			// 删除字段
 			flag = delCol(conn, tbDo, colDoDelList);
 			// 添加字段说明
@@ -301,32 +302,46 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 	 * 删除旧主键，添加新主键（更新表主键）
 	 * @param conn
 	 * @param tbDo
-	 * @param pkName
-	 * @param newKeyList
+	 * @param keyList
+	 * @param colDoDelList
 	 * @return
 	 */
-	private boolean updatePk(Connection conn, TableDo tbDo, List<ColumnDo> keyList) {
+	private boolean updatePk(Connection conn, TableDo tbDo, List<ColumnDo> keyList, List<ColumnDo> colDoDelList) {
 		boolean flag = true;
 		PreparedStatement ps = null;
-
 		boolean ifUpdKey = false;
 		String pkName = "";
 		String sql = "";
 		List<ColumnDo> newKeyList = new ArrayList<ColumnDo>();
 
+		// 检查删除字段列表，如果有主键，需要删除主键依赖
+		if (colDoDelList != null && colDoDelList.size() > 0) {
+			for (ColumnDo colDo : colDoDelList) {
+				// 原为主键列
+				if (colDo.getPkName() != null && !"".equals(colDo.getPkName())) {
+					ifUpdKey = true;
+					pkName = colDo.getPkName();
+					break;
+				}
+			}
+		}
+
 		for (ColumnDo colBean : keyList) {
 			// 原为主键列
 			if (colBean.getPkName() != null && !"".equals(colBean.getPkName())) {
 				pkName = colBean.getPkName();
-				// 已取消主键
-				if (colBean.getPrimaryKey() == false) {
+				if (colBean.getPrimaryKey() == null || colBean.getPrimaryKey().booleanValue() == false) {
+					// 已取消主键
 					ifUpdKey = true;
+				} else {
+					// 主键未变动
+					newKeyList.add(colBean);
 				}
 			}
 			// 原为非主键列
 			else {
 				// 新主键
-				if (colBean.getPrimaryKey().booleanValue() == true) {
+				if (colBean.getPrimaryKey() != null && colBean.getPrimaryKey().booleanValue() == true) {
 					ifUpdKey = true;
 					newKeyList.add(colBean);
 				}
@@ -335,15 +350,17 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 
 		if (ifUpdKey == true) {
 			// 删除原主键约束
-			sql = "";
-			sql += "alter table " + tbDo.getTableName() + " drop constraint " + pkName;
-			try {
-				ps = conn.prepareStatement(sql);
-				ps.execute();
-				flag = true;
-			} catch (Exception e) {
-				e.printStackTrace();
-				return false;
+			if (pkName != null && !"".equals(pkName)) {
+				sql = "";
+				sql += "alter table " + tbDo.getTableName() + " drop constraint " + pkName;
+				try {
+					ps = conn.prepareStatement(sql);
+					ps.execute();
+					flag = true;
+				} catch (Exception e) {
+					e.printStackTrace();
+					return false;
+				}
 			}
 			// 创建新主键约束
 			if (newKeyList.size() > 0) {
