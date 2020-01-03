@@ -235,6 +235,8 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 				if (oldTableDto.getTableShowName() != null) {
 					newTableDto.setTableShowName(oldTableDto.getTableShowName());
 				}
+				// 使用原tmuid，解决前台产生相同表标签页的问题
+				newTableDto.setTmuid(oldTableDto.getTmuid());
 			}
 
 			List<SysDictTableDto> addTableDtoList = new ArrayList<SysDictTableDto>();
