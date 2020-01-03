@@ -80,6 +80,35 @@ public class SysDictTableServiceImpl extends ServiceImpl<SysDictTableMapper, Sys
 	}
 
 	/**
+	 * 通过表名模糊检索获取表数据
+	 * @param tableName
+	 * @return
+	 */
+	@Override
+	public List<SysDictTableDto> getSysDictTableByNameFuzzy(String tableName) {
+		if (tableName == null || "".equals(tableName)) {
+			return null;
+		}
+		LambdaQueryWrapper<SysDictTable> query = new LambdaQueryWrapper<SysDictTable>();
+		query.like(SysDictTable::getTableName, tableName);
+		query.or();
+		query.like(SysDictTable::getTableShowName, tableName);
+		query.orderByAsc(SysDictTable::getSort);
+		List<SysDictTable> list = this.list(query);
+		List<SysDictTableDto> newList = new ArrayList<SysDictTableDto>();
+
+		if (list != null) {
+			for (SysDictTable b : list) {
+				SysDictTableDto nb = new SysDictTableDto();
+				BeanUtils.copyProperties(b, nb);
+				newList.add(nb);
+			}
+		}
+
+		return newList;
+	}
+
+	/**
 	 * 通过模块id获取数据库表数据
 	 * @param moduleId
 	 * @return

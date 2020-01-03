@@ -28,6 +28,14 @@ public interface ISysDictTableService {
 	 * @return
 	 */
 	public List<SysDictTableDto> getSysDictTableByName(String tableName);
+	
+	
+	/**
+	 * 通过表名模糊检索获取表数据
+	 * @param tableName
+	 * @return
+	 */
+	public List<SysDictTableDto> getSysDictTableByNameFuzzy(String tableName);
 
 	/**
 	 * 通过模块id获取数据库表数据

@@ -18,6 +18,7 @@ import com.yunhesoft.tm4.dbdictionary.entity.dto.SysDictTableDto;
 import com.yunhesoft.tm4.dbdictionary.entity.dto.SysModuleDto;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.ResponseVo;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.SysDictColumnVo;
+import com.yunhesoft.tm4.dbdictionary.entity.vo.SysDictDbModuleTableVo;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.SysDictModuleTableVo;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.SysDictTableColumnVo;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.SysDictTableVo;
@@ -469,5 +470,46 @@ public class DbDictController {
 		}
 
 		return resp;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/getTableByName", method = { RequestMethod.POST })
+	@ApiOperation(value = "获取表数据（模糊检索表名）")
+	@ApiImplicitParam(name = "name", value = "表名", required = true)
+	public List<SysDictDbModuleTableVo> getTableByName(String tableName) {
+		List<SysDictDbModuleTableVo> list = new ArrayList<SysDictDbModuleTableVo>();
+
+		List<SysDictTableDto> tbDtoList = tableService.getSysDictTableByNameFuzzy(tableName);
+		if (tbDtoList != null && tbDtoList.size() > 0) {
+			for (SysDictTableDto tbDto : tbDtoList) {
+				List<SysDbConnDto> dbconnDtoList = connService.getSysDbConnById(tbDto.getDbConnId());
+				List<SysModuleDto> moduleDtoList = moduleService.getSysModuleById(tbDto.getModuleId());
+				if (dbconnDtoList != null && dbconnDtoList.size() > 0 && moduleDtoList != null
+						&& moduleDtoList.size() > 0) {
+					SysDbConnDto dbconnDto = dbconnDtoList.get(0);
+					SysModuleDto moduleDto = moduleDtoList.get(0);
+
+					SysDictDbModuleTableVo dbModuleTableVo = new SysDictDbModuleTableVo();
+					SysDictColumnVo dbVo = new SysDictColumnVo();
+					SysModuleVo moduleVo = new SysModuleVo();
+					SysDictTableVo tableVo = new SysDictTableVo();
+					BeanUtils.copyProperties(tbDto, tableVo);
+					BeanUtils.copyProperties(dbconnDto, dbVo);
+					BeanUtils.copyProperties(moduleDto, moduleVo);
+					dbModuleTableVo.setDbVo(dbVo);
+					dbModuleTableVo.setModuleVo(moduleVo);
+					dbModuleTableVo.setTableVo(tableVo);
+					// 拼装表名
+					String value = tbDto.getTableName();
+					if (tbDto.getTableShowName() != null && !"".equals(tbDto.getTableShowName())) {
+						value += "(" + tbDto.getTableShowName() + ")";
+					}
+					dbModuleTableVo.setValue(value);
+					list.add(dbModuleTableVo);
+				}
+			}
+		}
+
+		return list;
 	}
 }

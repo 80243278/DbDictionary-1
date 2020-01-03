@@ -89,12 +89,12 @@ public class MssqlDbHelper {
 	 */
 	public static Map<String, TableDo> getAllTables(ConConfigDo config) throws SQLException {
 		Map<String, TableDo> tables = new HashMap<String, TableDo>(10);
-		String sql = "SELECT id,packName,tableName,tableNameCh,description FROM  " + SSHTABLES;
+		/*String sql = "SELECT id,packName,tableName,tableNameCh,description FROM  " + SSHTABLES;*/
 		Connection conn = null;
 		try {
 			conn = ConnectionHelper.getCon(config);
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ResultSet rs = ps.executeQuery();
+			/*PreparedStatement ps = conn.prepareStatement(sql);*/
+			/*ResultSet rs = ps.executeQuery();*/
 			/**while (rs.next()) {
 				String id = rs.getString("id");
 				String packName = rs.getString("packName");

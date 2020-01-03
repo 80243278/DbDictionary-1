@@ -239,12 +239,9 @@ public class MssqlUtilsImpl implements IMssqlUtils {
 						continue;
 					}
 					// 缓存关键列
-					boolean ifOldPk = false;
-					if (colBean.getPkName() != null && !"".equals(colBean.getPkName())) {
-						ifOldPk = true;
-					}
-					if ((colBean.getPrimaryKey() != null && colBean.getPrimaryKey().booleanValue())
-							|| ifOldPk == true) {
+					boolean ifKey = (colBean.getPrimaryKey() != null && colBean.getPrimaryKey().booleanValue())
+							|| (colBean.getPkName() != null && !"".equals(colBean.getPkName()));
+					if (ifKey) {
 						keyList.add(colBean);
 					}
 				} catch (Exception e) {

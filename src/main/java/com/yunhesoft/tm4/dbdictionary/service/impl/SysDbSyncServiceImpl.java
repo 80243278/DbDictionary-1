@@ -158,6 +158,12 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 			Map<String, SysDictTableDto> dictTbMap = tableService.getSysDictTableNameMap();
 
 			for (String tableName : tbMapKeyList) {
+				boolean ifInnerTable = "sys_db_conn".equals(tableName) || "sys_dict_column".equals(tableName)
+						|| "sys_dict_table".equals(tableName) || "sys_module".equals(tableName);
+				if (ifInnerTable) {
+					continue;
+				}
+
 				TableDo tbDo = tableMap.get(tableName);
 				SysDictTableDto tbDto = new SysDictTableDto();
 				BeanUtils.copyProperties(tbDo, tbDto);
@@ -223,7 +229,12 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 			newTableDto.setTmuid(ToolUtils.getUuid());
 			// 使用旧表数据覆盖，保留原有备注信息
 			if (oldTableDto != null) {
-				newTableDto.setRemark(oldTableDto.getRemark());
+				if (oldTableDto.getRemark() != null) {
+					newTableDto.setRemark(oldTableDto.getRemark());
+				}
+				if (oldTableDto.getTableShowName() != null) {
+					newTableDto.setTableShowName(oldTableDto.getTableShowName());
+				}
 			}
 
 			List<SysDictTableDto> addTableDtoList = new ArrayList<SysDictTableDto>();
@@ -254,6 +265,7 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 				SysDictColumnDto oldCol = oldColMap.get(colDto.getColumnName());
 				if (oldCol != null) {
 					colDto.setRemark(oldCol.getRemark());
+					colDto.setColumnShowName(oldCol.getColumnShowName());
 				}
 
 				addColDtoList.add(colDto);

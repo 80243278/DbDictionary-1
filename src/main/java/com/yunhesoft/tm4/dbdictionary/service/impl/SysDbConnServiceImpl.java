@@ -42,7 +42,34 @@ public class SysDbConnServiceImpl extends ServiceImpl<SysDbConnMapper, SysDbConn
 
 		return dtoList;
 	}
-	
+
+	/**
+	 * @category 通过ID获取模块数据
+	 * @param tmuid
+	 * @return
+	 */
+	@Override
+	public List<SysDbConnDto> getSysDbConnById(String tmuid) {
+		if (tmuid == null || "".equals(tmuid)) {
+			return null;
+		}
+		LambdaQueryWrapper<SysDbConn> query = new LambdaQueryWrapper<SysDbConn>();
+		query.eq(SysDbConn::getTmuid, tmuid);
+		query.orderByAsc(SysDbConn::getSort);
+		List<SysDbConn> list = this.list(query);
+		List<SysDbConnDto> newList = new ArrayList<SysDbConnDto>();
+
+		if (list != null) {
+			for (SysDbConn b : list) {
+				SysDbConnDto nb = new SysDbConnDto();
+				BeanUtils.copyProperties(b, nb);
+				newList.add(nb);
+			}
+		}
+
+		return newList;
+	}
+
 	/**
 	 * 保存数据库链接
 	 * @param addDtoList

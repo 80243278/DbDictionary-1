@@ -21,6 +21,13 @@ public interface ISysDbConnService {
 	public List<SysDbConnDto> getSysDbConn();
 
 	/**
+	 * @category 通过ID获取模块数据
+	 * @param tmuid
+	 * @return
+	 */
+	public List<SysDbConnDto> getSysDbConnById(String tmuid);
+
+	/**
 	 * 保存数据库链接
 	 * @param addDtoList
 	 * @param delDtoList
