@@ -23,18 +23,26 @@ import javax.persistence.Table;
 public class SysModule {
 	@Id
 	@TableId(type = IdType.ID_WORKER_STR)
+	/**唯一id*/
 	private String tmuid;
 	@Column(length = 50)
+	/**库连接id*/
 	private String dbConnId;
 	@TableId(type = IdType.ID_WORKER_STR)
 	@Column(length = 50)
+	/**模块编码，预留，后期扩展选择模块*/
 	private String moduleCode;
 	@Column(length = 200)
+	/**模块名称*/
 	private String moduleName;
 	@Column(length = 50)
+	/**模块类型*/
 	private String moduleType;
+	/**是否可用*/
 	private Boolean used;
+	/**排序*/
 	private Integer sort;
 	@Column(length = 4000)
+	/**备注*/
 	private String remark;
 }

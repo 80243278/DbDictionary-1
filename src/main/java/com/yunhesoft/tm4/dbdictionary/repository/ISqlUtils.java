@@ -13,7 +13,13 @@ import com.yunhesoft.tm4.dbdictionary.entity.domain.TableDo;
  * @author zhang.jt
  */
 @Repository
-public interface IMssqlUtils {
+public interface ISqlUtils {
+	/**
+	 * 获取当前连接的数据库名称
+	 * @return
+	 */
+	public String getCurrentDbName();
+
 	/**
 	 * 得到数据库中的表,不包括列
 	 * @return

@@ -44,6 +44,8 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 	//implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	//驱动程序
 	runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+	//mysql
+	implementation 'mysql:mysql-connector-java:8.0.18'
 	
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'

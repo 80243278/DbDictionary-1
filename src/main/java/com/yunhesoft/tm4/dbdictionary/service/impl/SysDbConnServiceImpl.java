@@ -22,7 +22,7 @@ import com.yunhesoft.tm4.dbdictionary.service.ISysDbConnService;
 @Repository("SysDbConnServiceImpl")
 public class SysDbConnServiceImpl extends ServiceImpl<SysDbConnMapper, SysDbConn> implements ISysDbConnService {
 	/**
-	 * 获取表连接数据
+	 * 获取数据库连接数据
 	 * @return List<SysDbConnDto>
 	 */
 	@Override
@@ -44,7 +44,7 @@ public class SysDbConnServiceImpl extends ServiceImpl<SysDbConnMapper, SysDbConn
 	}
 
 	/**
-	 * @category 通过ID获取模块数据
+	 * @category 通过ID获取数据库连接数据
 	 * @param tmuid
 	 * @return
 	 */
@@ -71,7 +71,7 @@ public class SysDbConnServiceImpl extends ServiceImpl<SysDbConnMapper, SysDbConn
 	}
 
 	/**
-	 * 保存数据库链接
+	 * 保存数据库连接数据
 	 * @param addDtoList
 	 * @param delDtoList
 	 * @param updDtoList

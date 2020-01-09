@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import com.yunhesoft.tm4.dbdictionary.entity.domain.TableDo;
 import com.yunhesoft.tm4.dbdictionary.entity.dto.SysDictColumnDto;
 import com.yunhesoft.tm4.dbdictionary.entity.dto.SysDictTableDto;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.SysModuleVo;
-import com.yunhesoft.tm4.dbdictionary.repository.IMssqlUtils;
+import com.yunhesoft.tm4.dbdictionary.repository.ISqlUtils;
 import com.yunhesoft.tm4.dbdictionary.service.ISysDbSyncService;
 import com.yunhesoft.tm4.dbdictionary.service.ISysDictColumnService;
 import com.yunhesoft.tm4.dbdictionary.service.ISysDictTableService;
@@ -28,11 +29,42 @@ import com.yunhesoft.tm4.dbdictionary.utils.ToolUtils;
 @Repository
 public class SysDbSyncServiceImpl implements ISysDbSyncService {
 	@Autowired
-	private IMssqlUtils mssqlUtils;
+	@Qualifier("MsSqlUtilsImpl")
+	private ISqlUtils mssqlUtils;
+	@Autowired
+	@Qualifier("MySqlUtilsImpl")
+	private ISqlUtils mysqlUtils;
 	@Autowired
 	private ISysDictColumnService colService;
 	@Autowired
 	private ISysDictTableService tableService;
+	@Autowired
+	private PropServiceImpl propService;
+
+	/**
+	 * 获取当前连接的数据库名称
+	 * @return
+	 */
+	@Override
+	public String getCurrentDbName() {
+		String dbName = "";
+
+		// 切换指定数据库底层操作接口
+		ISqlUtils sqlUtils = null;
+		String dbType = propService.getPropDbType();
+		if ("mysql".equals(dbType)) {
+			sqlUtils = mysqlUtils;
+		} else if ("mssql".equals(dbType)) {
+			sqlUtils = mssqlUtils;
+		}
+		if (sqlUtils == null) {
+			return dbName;
+		}
+
+		dbName = sqlUtils.getCurrentDbName();
+
+		return dbName;
+	}
 
 	/**
 	 * 同步字典数据到数据库
@@ -42,11 +74,23 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 	public boolean syncDictToDb(SysDictTableDto tableDto, List<SysDictColumnDto> colDtoList) {
 		boolean flag = true;
 
+		// 切换指定数据库底层操作接口
+		ISqlUtils sqlUtils = null;
+		String dbType = propService.getPropDbType();
+		if ("mysql".equals(dbType)) {
+			sqlUtils = mysqlUtils;
+		} else if ("mssql".equals(dbType)) {
+			sqlUtils = mssqlUtils;
+		}
+		if (sqlUtils == null) {
+			return false;
+		}
+
 		// 获取数据库中的表名
-		Map<String, TableDo> tableMap = mssqlUtils.getAllTables();
+		Map<String, TableDo> tableMap = sqlUtils.getAllTables();
 
 		// 获取数据表的字段
-		Map<String, ColumnDo> colMap = mssqlUtils.getTableColumns(tableDto.getTableName());
+		Map<String, ColumnDo> colMap = sqlUtils.getTableColumns(tableDto.getTableName());
 
 		TableDo tbDo = tableMap.get(tableDto.getTableName());
 		// 新建表
@@ -62,7 +106,7 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 				BeanUtils.copyProperties(colDto, colNewDo);
 				colDoNewList.add(colNewDo);
 			}
-			mssqlUtils.createTable(tbDoNew, colDoNewList);
+			sqlUtils.createTable(tbDoNew, colDoNewList);
 		}
 		// 修改表
 		else {
@@ -98,7 +142,7 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 				}
 			}
 
-			mssqlUtils.alterTable(tbDo, colDoNewList, colDoAlterList, colDoDelList);
+			sqlUtils.alterTable(tbDo, colDoNewList, colDoAlterList, colDoDelList);
 		}
 
 		return flag;
@@ -112,8 +156,20 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 	public boolean syncDbToDict(SysDictTableDto tableDto) {
 		boolean flag = true;
 
+		// 切换指定数据库底层操作接口
+		ISqlUtils sqlUtils = null;
+		String dbType = propService.getPropDbType();
+		if ("mysql".equals(dbType)) {
+			sqlUtils = mysqlUtils;
+		} else if ("mssql".equals(dbType)) {
+			sqlUtils = mssqlUtils;
+		}
+		if (sqlUtils == null) {
+			return false;
+		}
+
 		// 获取数据表的字段
-		Map<String, ColumnDo> colMap = mssqlUtils.getTableColumns(tableDto.getTableName());
+		Map<String, ColumnDo> colMap = sqlUtils.getTableColumns(tableDto.getTableName());
 		List<String> colNameList = new ArrayList<String>(colMap.keySet());
 		List<SysDictColumnDto> addColDtoList = new ArrayList<SysDictColumnDto>();
 		int sort = 1;
@@ -150,8 +206,20 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 	public List<SysDictTableDto> getSyncTables() {
 		List<SysDictTableDto> list = new ArrayList<SysDictTableDto>();
 
+		// 切换指定数据库底层操作接口
+		ISqlUtils sqlUtils = null;
+		String dbType = propService.getPropDbType();
+		if ("mysql".equals(dbType)) {
+			sqlUtils = mysqlUtils;
+		} else if ("mssql".equals(dbType)) {
+			sqlUtils = mssqlUtils;
+		}
+		if (sqlUtils == null) {
+			return list;
+		}
+
 		// 获取数据库中的表名
-		Map<String, TableDo> tableMap = mssqlUtils.getAllTables();
+		Map<String, TableDo> tableMap = sqlUtils.getAllTables();
 		List<String> tbMapKeyList = new ArrayList<String>(tableMap.keySet());
 		if (tbMapKeyList.size() > 0) {
 			// 获取字典表数据
@@ -194,6 +262,18 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 		boolean flag = true;
 
 		if (tableDtoList == null) {
+			return false;
+		}
+
+		// 切换指定数据库底层操作接口
+		ISqlUtils sqlUtils = null;
+		String dbType = propService.getPropDbType();
+		if ("mysql".equals(dbType)) {
+			sqlUtils = mysqlUtils;
+		} else if ("mssql".equals(dbType)) {
+			sqlUtils = mssqlUtils;
+		}
+		if (sqlUtils == null) {
 			return false;
 		}
 
@@ -245,7 +325,7 @@ public class SysDbSyncServiceImpl implements ISysDbSyncService {
 			tableSort++;
 
 			// 通过底层SQL语句反射获取数据表字段
-			Map<String, ColumnDo> colMap = mssqlUtils.getTableColumns(tableDto.getTableName());
+			Map<String, ColumnDo> colMap = sqlUtils.getTableColumns(tableDto.getTableName());
 			List<String> colNameList = new ArrayList<String>(colMap.keySet());
 			List<SysDictColumnDto> addColDtoList = new ArrayList<SysDictColumnDto>();
 			int sort = 1;

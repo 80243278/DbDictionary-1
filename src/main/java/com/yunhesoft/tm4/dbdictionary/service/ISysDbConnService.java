@@ -15,20 +15,20 @@ import io.swagger.annotations.Api;
 @Api(tags = "表连接接口类")
 public interface ISysDbConnService {
 	/**
-	 * 获取表连接数据
+	 * 获取数据库连接数据
 	 * @return List<SysDbConnDto>
 	 */
 	public List<SysDbConnDto> getSysDbConn();
 
 	/**
-	 * @category 通过ID获取模块数据
+	 * 通过ID获取数据库连接数据
 	 * @param tmuid
 	 * @return
 	 */
 	public List<SysDbConnDto> getSysDbConnById(String tmuid);
 
 	/**
-	 * 保存数据库链接
+	 * 保存数据库连接数据
 	 * @param addDtoList
 	 * @param delDtoList
 	 * @param updDtoList

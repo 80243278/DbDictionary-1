@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +23,7 @@ import com.yunhesoft.tm4.dbdictionary.entity.vo.SysDictTableColumnVo;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.SysDictTableVo;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.SysModuleVo;
 import com.yunhesoft.tm4.dbdictionary.entity.vo.SysTreeNodeVo;
+import com.yunhesoft.tm4.dbdictionary.service.IPropService;
 import com.yunhesoft.tm4.dbdictionary.service.ISysDbConnService;
 import com.yunhesoft.tm4.dbdictionary.service.ISysDbSyncService;
 import com.yunhesoft.tm4.dbdictionary.service.ISysDictColumnService;
@@ -52,9 +52,8 @@ public class DbDictController {
 	private ISysDictColumnService columnService;
 	@Autowired
 	private ISysDbSyncService syncService;
-
 	@Autowired
-	ApplicationContext applicationContext;
+	private IPropService propService;
 
 	@ResponseBody
 	@RequestMapping(value = "/addModule", method = { RequestMethod.POST })
@@ -109,6 +108,15 @@ public class DbDictController {
 		ResponseVo resp = ResponseVo.ok("添加表成功");
 		SysDictTableDto dto = new SysDictTableDto();
 		BeanUtils.copyProperties(table, dto);
+
+		// 检查表名是否重复
+		List<SysDictTableDto> dbTableList = tableService.getSysDictTableByName(dto.getTableName());
+		if (dbTableList != null && dbTableList.size() > 0) {
+			resp = ResponseVo.error("此表名已存在，请您修改表名");
+			return resp;
+		}
+
+		// 新增表
 		SysDictTableDto rstDto = tableService.addSysDictTable(dto);
 		if (rstDto == null) {
 			resp = ResponseVo.error("添加表失败");
@@ -129,6 +137,20 @@ public class DbDictController {
 		ResponseVo resp = ResponseVo.ok("修改表成功");
 		SysDictTableDto dto = new SysDictTableDto();
 		BeanUtils.copyProperties(table, dto);
+
+		// 检查表名是否重复
+		List<SysDictTableDto> dbTableList = tableService.getSysDictTableByName(dto.getTableName());
+		if (dbTableList != null && dbTableList.size() > 0) {
+			for (SysDictTableDto dbTbDto : dbTableList) {
+				if (!dto.getTmuid().equals(dbTbDto.getTmuid())) {
+					// 非当前修改的表，与其它表名冲突
+					resp = ResponseVo.error("此表名已存在，请您修改表名");
+					return resp;
+				}
+			}
+		}
+
+		// 修改表
 		boolean flag = tableService.updSysDictTable(dto);
 		if (flag == false) {
 			resp = ResponseVo.error("修改表失败");
@@ -280,14 +302,21 @@ public class DbDictController {
 					nodeVoList.add(nodeVo);
 				}
 			} else {
+				// 获取当前连接库名
+				String curDbName = syncService.getCurrentDbName();
 				// 初始化当前数据库连接节点
 				SysDbConnDto connDto = new SysDbConnDto();
 				connDto.setTmuid(ToolUtils.getUuid());
-				connDto.setDbName("当前数据库");
-				connDto.setDbShowName("当前数据库");
-				connDto.setRemark("当前数据库");
+				String dbShowName = "当前数据库";
+				if (curDbName != null && !"".equals(curDbName)) {
+					dbShowName += "(" + curDbName + ")";
+				}
+				connDto.setDbName(curDbName);
+				connDto.setDbShowName(dbShowName);
+				connDto.setRemark(dbShowName);
 				connDto.setSort(1);
 				connDto.setUsed(true);
+				connDto.setDbDialect(propService.getPropDbType());
 				List<SysDbConnDto> connDtoList = new ArrayList<SysDbConnDto>();
 				connDtoList.add(connDto);
 				boolean flag = connService.saveSysDbConn(connDtoList, null, null);

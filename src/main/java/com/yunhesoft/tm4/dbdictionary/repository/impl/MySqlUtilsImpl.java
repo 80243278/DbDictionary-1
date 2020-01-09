@@ -18,13 +18,14 @@ import org.springframework.stereotype.Repository;
 import com.yunhesoft.tm4.dbdictionary.entity.domain.ColumnDo;
 import com.yunhesoft.tm4.dbdictionary.entity.domain.TableDo;
 import com.yunhesoft.tm4.dbdictionary.repository.ISqlUtils;
+import com.yunhesoft.tm4.dbdictionary.utils.ToolUtils;
 
 /**
- * mssql底层操作类
+ * mysql底层操作类
  * @author zhang.jt
  */
-@Repository("MsSqlUtilsImpl")
-public class MsSqlUtilsImpl implements ISqlUtils {
+@Repository("MySqlUtilsImpl")
+public class MySqlUtilsImpl implements ISqlUtils {
 	@Autowired
 	ApplicationContext applicationContext;
 
@@ -38,12 +39,13 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 
 		try {
 			DataSource dataSource = applicationContext.getBean(DataSource.class);
-			String sql = "Select Name dbName From Master..SysDataBases Where DbId=(Select Dbid From Master..SysProcesses Where Spid = @@spid)";
+			String sql = "select database();";
 			Connection conn = dataSource.getConnection();
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				dbName = rs.getString("dbName");
+				// 只有一列，列名：“database()”
+				dbName = rs.getString(1);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -62,13 +64,15 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 
 		try {
 			DataSource dataSource = applicationContext.getBean(DataSource.class);
-			String sql = "SELECT id,name FROM sysobjects where xtype='U'";
+			String sql = " show tables;";
 			Connection conn = dataSource.getConnection();
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				String id = rs.getString("id");
-				String name = rs.getString("name");
+				// 没有id
+				String id = ToolUtils.getUuid();
+				// 只有一列，动态列名：“Tables in 数据库名”
+				String name = rs.getString(1);
 				tables.put(name, new TableDo(id, name));
 			}
 		} catch (Exception e) {
@@ -88,14 +92,12 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 
 		try {
 			String sql = "";
-			sql += " select a.name as tableName, b.name as colName,b.max_length as size,b.precision,b.scale,b.is_nullable isnull,";
-			sql += "c.value as remark,d.constraint_name pkName,e.data_type dataType";
-			sql += " from sys.tables a left join sys.columns b on a.object_id=b.object_id ";
-			sql += " left join sys.extended_properties c on a.object_id=c.major_id  and b.column_id=c.minor_id";
-			sql += " left join information_schema.key_column_usage d on a.name=d.table_name and d.column_name=b.name";
-			sql += " left join INFORMATION_SCHEMA.columns e on a.name=e.table_name and b.name=e.column_name";
-			sql += " where a.name='" + tableName + "'";
-			sql += " order by column_id";
+			sql += " select 'sys_db_conn' tableName,column_name colName,character_maximum_length size,";
+			sql += " numeric_precision 'precision',numeric_scale scale,is_nullable isnull,";
+			sql += " COLUMN_COMMENT remark,column_key pkName,data_type dataType";
+			sql += " from information_schema.columns";
+			sql += " where table_name = '" + tableName + "'";
+			sql += " order by ORDINAL_POSITION asc;";
 
 			DataSource dataSource = applicationContext.getBean(DataSource.class);
 			Connection conn = dataSource.getConnection();
@@ -145,14 +147,15 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 			String sql = "";
 
 			// 创建表
-			sql += "CREATE TABLE " + tbDoNew.getTableName() + " (";
+			sql += "CREATE TABLE `" + tbDoNew.getTableName() + "` (";
 
 			int i = 0;
 			for (ColumnDo colBean : colDoNewList) {
 				if (i > 0) {
 					sql += ",";
 				}
-				sql += colBean.getColumnName() + " " + getColumnType(colBean) + " " + getIfNull(colBean);
+				sql += "`" + colBean.getColumnName() + "` " + getColumnType(colBean) + " " + getIfNull(colBean)
+						+ " COMMENT '" + colBean.getRemark() + "'";
 				// 缓存关键列
 				if (colBean.getPrimaryKey().booleanValue()) {
 					keyList.add(colBean);
@@ -171,21 +174,16 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 				return false;
 			}
 
-			// 添加字段说明
-			// 添加字段说明
-			flag = addColDesc(conn, tbDoNew, colDoNewList);
-
 			// 添加主键
 			if (keyList.size() > 0) {
 				sql = "";
-				sql += "alter table " + tbDoNew.getTableName() + " add constraint PK_" + tbDoNew.getTableName()
-						+ " primary key(";
+				sql += "ALTER TABLE `" + tbDoNew.getTableName() + "` ADD PRIMARY KEY (";
 				int j = 0;
 				for (ColumnDo colBean : keyList) {
 					if (j > 0) {
 						sql += ",";
 					}
-					sql += colBean.getColumnName();
+					sql += "`" + colBean.getColumnName() + "`";
 					j++;
 				}
 				sql += ")";
@@ -227,8 +225,8 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 			// 新增字段
 			sql = "";
 			for (ColumnDo colBean : colDoNewList) {
-				sql += "alter table " + tbDo.getTableName() + " add " + colBean.getColumnName() + " "
-						+ getColumnType(colBean) + " " + getIfNull(colBean) + ";";
+				sql += "ALTER TABLE `" + tbDo.getTableName() + "` ADD COLUMN " + colBean.getColumnName() + " "
+						+ getColumnType(colBean) + " " + getIfNull(colBean) + " COMMENT '" + colBean.getRemark() + "';";
 
 				// 缓存关键列
 				boolean ifOldPk = false;
@@ -238,22 +236,24 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 				if (colBean.getPrimaryKey().booleanValue() || ifOldPk == true) {
 					keyList.add(colBean);
 				}
+				try {
+					ps = conn.prepareStatement(sql);
+					ps.execute();
+					flag = true;
+				} catch (Exception e) {
+					e.printStackTrace();
+					flag = false;
+				}
 			}
-			try {
-				ps = conn.prepareStatement(sql);
-				ps.execute();
-				flag = true;
-			} catch (Exception e) {
-				e.printStackTrace();
-				return false;
-			}
+
 			// 修改字段类型
 			sql = "";
 			for (ColumnDo colBean : colDoAlterList) {
 				// 修改有风险，单个执行
 				try {
-					sql = "alter table " + tbDo.getTableName() + " alter column " + colBean.getColumnName() + " "
-							+ getColumnType(colBean) + " " + getIfNull(colBean) + ";";
+					sql = "ALTER TABLE `" + tbDo.getTableName() + "` MODIFY COLUMN `" + colBean.getColumnName() + "` "
+							+ getColumnType(colBean) + " " + getIfNull(colBean) + " COMMENT '" + colBean.getRemark()
+							+ "';";
 					try {
 						ps = conn.prepareStatement(sql);
 						ps.execute();
@@ -276,10 +276,6 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 			flag = updatePk(conn, tbDo, keyList, colDoDelList);
 			// 删除字段
 			flag = delCol(conn, tbDo, colDoDelList);
-			// 添加字段说明
-			flag = addColDesc(conn, tbDo, colDoNewList);
-			// 修改字段说明
-			flag = alterColDesc(conn, tbDo, colDoAlterList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -373,7 +369,7 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 			// 删除原主键约束
 			if (pkName != null && !"".equals(pkName)) {
 				sql = "";
-				sql += "alter table " + tbDo.getTableName() + " drop constraint " + pkName;
+				sql += "alter table `" + tbDo.getTableName() + "` DROP PRIMARY KEY;";
 				try {
 					ps = conn.prepareStatement(sql);
 					ps.execute();
@@ -386,8 +382,7 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 			// 创建新主键约束
 			if (newKeyList.size() > 0) {
 				sql = "";
-				sql += "alter table " + tbDo.getTableName() + " add constraint PK_" + tbDo.getTableName()
-						+ " primary key(";
+				sql += "ALTER TABLE `" + tbDo.getTableName() + "` ADD PRIMARY KEY (";
 				int i = 0;
 				for (ColumnDo key : newKeyList) {
 					if (i > 0) {
@@ -411,66 +406,6 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 	}
 
 	/**
-	 * 添加字段描述
-	 * @param conn
-	 * @param tbDo
-	 * @param colDoNewList
-	 * @return
-	 */
-	private boolean addColDesc(Connection conn, TableDo tbDo, List<ColumnDo> colDoNewList) {
-		boolean flag = true;
-
-		String sql = "";
-		if (colDoNewList.size() > 0) {
-			for (ColumnDo colBean : colDoNewList) {
-				sql += "EXEC sp_addextendedproperty 'MS_Description', N'" + colBean.getRemark()
-						+ "', 'SCHEMA', N'dbo', 'TABLE', N'" + tbDo.getTableName() + "', 'COLUMN', N'"
-						+ colBean.getColumnName() + "';";
-
-			}
-			try {
-				PreparedStatement ps = conn.prepareStatement(sql);
-				ps.execute();
-				flag = true;
-			} catch (Exception e) {
-				e.printStackTrace();
-				flag = false;
-			}
-		}
-
-		return flag;
-	}
-
-	/**
-	 * 修改字段描述
-	 * @param conn
-	 * @param tbDo
-	 * @param colDoAlterList
-	 * @return
-	 */
-	private boolean alterColDesc(Connection conn, TableDo tbDo, List<ColumnDo> colDoAlterList) {
-		boolean flag = true;
-
-		String sql = "";
-		if (colDoAlterList.size() > 0) {
-			for (ColumnDo colBean : colDoAlterList) {
-				sql += "EXEC sp_updateextendedproperty 'MS_Description', N'" + colBean.getRemark()
-						+ "', 'SCHEMA', N'dbo', 'TABLE', N'" + tbDo.getTableName() + "', 'COLUMN', N'"
-						+ colBean.getColumnName() + "';";
-			}
-		}
-		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.execute();
-			flag = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return flag;
-	}
-
-	/**
 	 * 获取字段类型串
 	 * @param colBean
 	 * @return
@@ -486,7 +421,11 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 		}
 		// decimal
 		else if (decimalStr.equals(colBean.getDataType().toLowerCase())) {
-			typeStr += decimalStr + "(" + colBean.getSize() + ")";
+			Integer scale = colBean.getScale();
+			if (scale == null) {
+				scale = 0;
+			}
+			typeStr += decimalStr + "(" + colBean.getSize() + "," + scale.intValue() + ")";
 		}
 		// other
 		else {
@@ -512,5 +451,4 @@ public class MsSqlUtilsImpl implements ISqlUtils {
 
 		return ifnull;
 	}
-
 }

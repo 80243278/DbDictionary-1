@@ -15,6 +15,12 @@ import com.yunhesoft.tm4.dbdictionary.entity.vo.SysModuleVo;
 @Service
 public interface ISysDbSyncService {
 	/**
+	 * 获取当前连接的数据库名称
+	 * @return
+	 */
+	public String getCurrentDbName();
+	
+	/**
 	 * 同步字典数据到数据库
 	 * @param tableDto
 	 * @param colDtoList
